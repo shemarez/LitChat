@@ -19,7 +19,6 @@ public class HomepageActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ChatFragment.OnListFragmentInteractionListener {
     private static final String LIST1_TAB_TAG = "List1";
 
-    String[] listViewArr = {"Leda Rezanejad", "Jason Thai", "Sherry Rezanejad", "Ramtin Aminoshari", "Ali Rezanejad"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +35,7 @@ public class HomepageActivity extends AppCompatActivity
             public void onClick(View view) {
                 Intent intent = new Intent(that, MessageActivity.class);
                 startActivity(intent);
-//                Toast.makeText(this, "Smileys");
-//                Toast.makeText(this, "Smileys = " + ("\ud83d\ude01"),Toast.LENGTH_LONG).show();
-//                Snackbar.make(view, "Smileys = " + ("\ud83d\ude01"), Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
+//
             }
         });
 
@@ -55,6 +51,7 @@ public class HomepageActivity extends AppCompatActivity
         if(findViewById(R.id.fragment_container) != null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, new ChatFragment()).commit();
+
         }
 
 

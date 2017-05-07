@@ -11,4 +11,7 @@
     android:alwaysDrawnWithCache="false"
     app:layoutManager="LinearLayoutManager"
     tools:context="tcss450.uw.edu.hitmeupv2.ChatFragment"
-    tools:listitem="@layout/fragment_chat" />
+    tools:listitem="@layout/fragment_chat">
+
+
+</android.support.v7.widget.RecyclerView>

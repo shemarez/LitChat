@@ -13,7 +13,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -88,7 +88,7 @@ public class MessageActivity extends AppCompatActivity  {
                 ChatMessage chatMessage = new ChatMessage();
                 chatMessage.setId(122);//dummy
                 chatMessage.setMessage(messageText);
-                chatMessage.setDate(DateFormat.getDateTimeInstance().format(new Date()));
+                chatMessage.setDate(getCurrentTime());
                 chatMessage.setMe(true);
 
                 messageET.setText("");
@@ -118,13 +118,15 @@ public class MessageActivity extends AppCompatActivity  {
         msg.setId(1);
         msg.setMe(false);
         msg.setMessage("Hi");
-        msg.setDate(DateFormat.getDateTimeInstance().format(new Date()));
+//        msg.setDate(DateFormat.getDateTimeInstance().format(new Date()));
+        msg.setDate(getCurrentTime());
         chatHistory.add(msg);
         ChatMessage msg1 = new ChatMessage();
         msg1.setId(2);
         msg1.setMe(false);
         msg1.setMessage("How r u doing???");
-        msg1.setDate(DateFormat.getDateTimeInstance().format(new Date()));
+//        msg1.setDate(DateFormat.getDateTimeInstance().format(new Date()));
+        msg1.setDate(getCurrentTime());
         chatHistory.add(msg1);
 
         adapter = new MessageAdapter(MessageActivity.this, new ArrayList<ChatMessage>());
@@ -135,6 +137,17 @@ public class MessageActivity extends AppCompatActivity  {
             displayMessage(message);
         }
 
+    }
+
+
+    public String getCurrentTime() {
+        SimpleDateFormat timeFormat = new SimpleDateFormat("K:mm");
+
+        return timeFormat.format(new Date());
+
+    }
+    public ArrayList<ChatMessage> getChatHistory() {
+        return chatHistory;
     }
 
 
