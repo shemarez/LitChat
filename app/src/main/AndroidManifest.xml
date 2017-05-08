@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="tcss450.uw.edu.hitmeupv2">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/androidicon"
