@@ -19,6 +19,6 @@ public interface MessagingAPI {
      * @return
      */
     @FormUrlEncoded
-    @POST("login-android")
+    @POST("login")
     Call<List<User>> login(@Field("username") String username, @Field("password") String password);
 }
