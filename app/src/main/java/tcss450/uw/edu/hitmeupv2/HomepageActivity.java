@@ -33,7 +33,7 @@ public class HomepageActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(that, MessageActivity.class);
+                Intent intent = new Intent(that, FriendsActivity.class);
                 startActivity(intent);
 //
             }
@@ -55,65 +55,10 @@ public class HomepageActivity extends AppCompatActivity
         }
 
 
-       // createTabs();
 
     }
 
-//    public void createTabs() {
-//        final TabHost  host = (TabHost) findViewById(R.id.tabHost);
-//        host.setup();
-//
-//        // Tab 1: Chats
-//        TabHost.TabSpec spec = host.newTabSpec("Chats");
-//        spec.setContent(R.id.chatsTab);
-//        spec.setIndicator("Chats");
-////        final ListView listView1 = (ListView) findViewById(R.id.list1);
-//        host.addTab(spec);
-////        host.addTab(host.newTabSpec(LIST1_TAB_TAG).setIndicator(LIST1_TAB_TAG).setContent(new TabHost.TabContentFactory() {
-////            @Override
-////            public View createTabContent(String tag) {
-////                return listView1;
-////            }
-////        }));
-//        // Tab 2: Group Chats
-//        spec = host.newTabSpec("GroupChats");
-//        spec.setContent(R.id.GroupChats);
-//        spec.setIndicator("GroupChats");
-//        host.addTab(spec);
-//
-//        // Tab 3: Friends
-//        spec = host.newTabSpec("Friends");
-//        spec.setContent(R.id.Friends);
-//        spec.setIndicator("Friends");
-//        host.addTab(spec);
-//
-//        for(int i=0; i < host.getTabWidget().getChildCount(); i++) {
-//            host.getTabWidget().getChildAt(0).setBackgroundColor(Color.parseColor("#ff6600"));
-//            host.getTabWidget().getChildAt(i).setBackgroundColor(Color.parseColor("#333333"));
-//        }
-//
-//        host.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
-//            @Override
-//            public void onTabChanged(String tabId) {
-////                int tab = host.getCurrentTab();
-////
-////                System.out.println(tabId);
-////                System.out.println("Tab: " + tab);
-////                host.getTabWidget().getChildAt(tab).setBackgroundColor(Color.parseColor("#ff6600"));
-//
-//                for(int i=0;i<host.getTabWidget().getChildCount();i++)
-//                {
-//                    host.getTabWidget().getChildAt(i).setBackgroundColor(Color.parseColor("#333333")); //unselected
-//                }
-//                host.getTabWidget().getChildAt(host.getCurrentTab()).setBackgroundColor(Color.parseColor("#ff6600")); // selected
-//
-//            }
-//
-//
-//        });
-//
-//
-//    }
+
 
     @Override
     public void onBackPressed() {

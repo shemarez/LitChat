@@ -21,4 +21,7 @@ public interface MessagingAPI {
     @FormUrlEncoded
     @POST("login")
     Call<List<User>> login(@Field("username") String username, @Field("password") String password);
+
+    Call<List<User>> friends(@Field("username") String username, @Field("password") String password);
+
 }

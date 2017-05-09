@@ -11,8 +11,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/androidiconround"
         android:supportsRtl="true"
-        tools:replace="android:icon"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:replace="android:icon">
         <activity
             android:name=".LoginActivity"
             android:theme="@style/LoginTheme">
@@ -33,12 +33,14 @@
             android:name=".MessageActivity"
             android:label="@string/title_activity_homepage"
             android:theme="@style/MessageTheme">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="tcss450.uw.edu.hitmeupv2.HomepageActivity" />
-
-
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="tcss450.uw.edu.hitmeupv2.HomepageActivity" />
         </activity>
+        <activity
+            android:name=".FriendsActivity"
+            android:label="@string/title_activity_friends"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>
