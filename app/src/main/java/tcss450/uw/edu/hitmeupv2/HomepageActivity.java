@@ -13,11 +13,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import tcss450.uw.edu.hitmeupv2.Chat.ChatContent;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-public class HomepageActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, ChatFragment.OnListFragmentInteractionListener {
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import tcss450.uw.edu.hitmeupv2.Chat.ChatContent;
+import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
+import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
+
+public class HomepageActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        ChatFragment.OnListFragmentInteractionListener {
+
     private static final String LIST1_TAB_TAG = "List1";
+    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
 
 
     @Override
@@ -54,6 +68,43 @@ public class HomepageActivity extends AppCompatActivity
 
         }
 
+        //used to convert JSON to POJO (Plain old java object)
+        Gson gson = new GsonBuilder().setLenient().create();
+
+        //Set up retrofit to make our API call
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        //More setup
+        MessagingAPI api = retrofit.create(MessagingAPI.class);
+
+        //Call the getConversations method from the interface that we created
+        String userId = getIntent().getExtras().getString("userId");
+        System.out.println("userId: " + userId);
+        Call<List<Conversation>> call = api.getConversations(userId);
+
+        call.enqueue(new Callback<List<Conversation>>() {
+
+            @Override
+            public void onResponse(Call<List<Conversation>> call, Response<List<Conversation>> response) {
+                System.out.println(response);
+                if (response.isSuccessful()) {
+                    System.out.println("here");
+                    List<Conversation> convos = response.body();
+                    for (int i = 0; i < convos.size(); i++) {
+                        System.out.println(convos.get(i).getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Conversation>> call, Throwable t) {
+                System.out.println("fail");
+                t.printStackTrace();
+            }
+        });
 
        // createTabs();
 

@@ -14,6 +14,7 @@ public class User {
      * or "Error" which means user not found
      */
     private String message;
+    private String userId;
 
     public String getUsername() {
         return username;
@@ -25,6 +26,10 @@ public class User {
 
     public String getMessage() {
         return message;
+    }
+
+    public String getUserId() {
+        return userId;
     }
 
 }

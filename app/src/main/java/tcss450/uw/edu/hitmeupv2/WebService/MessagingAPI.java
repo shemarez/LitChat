@@ -5,7 +5,11 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
+
+import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
 
 /**
  * This is the interface we will use to interact with our backend web service
@@ -21,4 +25,7 @@ public interface MessagingAPI {
     @FormUrlEncoded
     @POST("login")
     Call<List<User>> login(@Field("username") String username, @Field("password") String password);
+
+    @GET("conversations/{userId}")
+    Call<List<Conversation>> getConversations(@Path("userId") String userId);
 }

@@ -82,6 +82,11 @@ public class LoginActivity extends AppCompatActivity {
                     System.out.println(user.getUsername());
                     System.out.println(user.getPassword());
                     System.out.println(user.getMessage());
+                    System.out.println(user.getUserId());
+
+                    String userId = user.getUserId();
+
+                    intent.putExtra("userId", userId);
 
                     //Was successful
                     if (user.getMessage().equals("Success")) {
