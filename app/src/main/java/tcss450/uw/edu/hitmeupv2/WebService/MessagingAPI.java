@@ -28,4 +28,5 @@ public interface MessagingAPI {
 
     @GET("conversations/{userId}")
     Call<List<Conversation>> getConversations(@Path("userId") String userId);
+
 }

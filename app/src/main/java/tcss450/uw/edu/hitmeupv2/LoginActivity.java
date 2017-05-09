@@ -1,11 +1,12 @@
 package tcss450.uw.edu.hitmeupv2;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -17,7 +18,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
 import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
 import tcss450.uw.edu.hitmeupv2.WebService.User;
 
@@ -60,6 +60,8 @@ public class LoginActivity extends AppCompatActivity {
         //used to convert JSON to POJO (Plain old java object)
         Gson gson = new GsonBuilder().setLenient().create();
 
+
+
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -94,6 +96,9 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         //TODO: Handle error when logging in. Pop up a toast?
                         Log.w("LoginActivity", "Login Error, Please Try Again");
+                        Toast.makeText(LoginActivity.this, "Invalid Username or Password",
+                                Toast.LENGTH_SHORT).show();
+
                     }
                 }
             }

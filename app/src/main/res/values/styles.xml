@@ -45,12 +45,7 @@
         <item name="android:textColorPrimary">@color/textMessageColor</item>
 
 
-
     </style>
-
-
-
-
 
 
 </resources>
