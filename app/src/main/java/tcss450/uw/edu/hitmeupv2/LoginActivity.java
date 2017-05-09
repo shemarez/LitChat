@@ -2,11 +2,11 @@ package tcss450.uw.edu.hitmeupv2;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,7 +47,11 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = (EditText) findViewById(R.id.passwordEditText);
     }
 
-    public void clickedSignUp(View v) {
+    /**
+     *  When the user has to sign up, switch to register page
+     * @param v
+     */
+    public void switchToSignUp(View v) {
         Intent intent = new Intent(this, SignupActivity.class);
         startActivity(intent);
     }
@@ -57,57 +61,72 @@ public class LoginActivity extends AppCompatActivity {
         username = usernameEditText.getText().toString(); //grab username
         password = passwordEditText.getText().toString(); //grab password
 
-        //used to convert JSON to POJO (Plain old java object)
-        Gson gson = new GsonBuilder().setLenient().create();
+        final View parentLayout = findViewById(R.id.passwordEditText);
+
+        // check if editText is empty
+        if(username.length() == 0 || password.length() == 0) {
+            Snackbar snackbar = Snackbar
+                    .make(parentLayout, "Please enter a valid Username or Password", Snackbar.LENGTH_LONG);
+            snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
+
+            snackbar.show();
+        } else {
+            //used to convert JSON to POJO (Plain old java object)
+            Gson gson = new GsonBuilder().setLenient().create();
 
 
 
-        //Set up retrofit to make our API call
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
+            //Set up retrofit to make our API call
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .build();
 
-        //More setup
-        MessagingAPI api = retrofit.create(MessagingAPI.class);
+            //More setup
+            MessagingAPI api = retrofit.create(MessagingAPI.class);
 
-        //Call the login interface that we created
-        Call<List<User>> call = api.login(username, password);
+            //Call the login interface that we created
+            Call<List<User>> call = api.login(username, password);
 
-        //Make API call, handle success and error
-        call.enqueue(new Callback<List<User>>() {
+            //Make API call, handle success and error
+            call.enqueue(new Callback<List<User>>() {
 
-            @Override
-            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                if (response.isSuccessful()) {
-                    User user = response.body().get(0);
-                    System.out.println(user.getUsername());
-                    System.out.println(user.getPassword());
-                    System.out.println(user.getMessage());
-                    System.out.println(user.getUserId());
+                @Override
+                public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                    if (response.isSuccessful()) {
+                        User user = response.body().get(0);
+                        System.out.println(user.getUsername());
+                        System.out.println(user.getPassword());
+                        System.out.println(user.getMessage());
+                        System.out.println(user.getUserId());
 
-                    String userId = user.getUserId();
+                        String userId = user.getUserId();
 
-                    intent.putExtra("userId", userId);
+                        intent.putExtra("userId", userId);
 
-                    //Was successful
-                    if (user.getMessage().equals("Success")) {
-                        startActivity(intent); //Switch to new activity
-                    } else {
-                        //TODO: Handle error when logging in. Pop up a toast?
-                        Log.w("LoginActivity", "Login Error, Please Try Again");
-                        Toast.makeText(LoginActivity.this, "Invalid Username or Password",
-                                Toast.LENGTH_SHORT).show();
+                        //Was successful
+                        if (user.getMessage().equals("Success")) {
+                            startActivity(intent); //Switch to new activity
+                        } else {
+                            //TODO: Handle error when logging in. Pop up a toast?
+                            Log.w("LoginActivity", "Login Error, Please Try Again");
+                            Snackbar snackbar = android.support.design.widget.Snackbar
+                                    .make(parentLayout, "Invalid username or password", android.support.design.widget.Snackbar.LENGTH_LONG);
+                            snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
 
+                            snackbar.show();
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<List<User>> call, Throwable t) {
-                System.out.println("fail");
-                t.printStackTrace();
-            }
-        });
+                @Override
+                public void onFailure(Call<List<User>> call, Throwable t) {
+                    System.out.println("fail");
+                    t.printStackTrace();
+                }
+            });
+
+        }
+
     }
 }

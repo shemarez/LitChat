@@ -9,24 +9,35 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
-import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
-
 /**
+ * Jason Thai
+ * Shema Rezanejad
  * This is the interface we will use to interact with our backend web service
  */
 
 public interface MessagingAPI {
     /** Login
      *
-     * @param username
-     * @param password
-     * @return
+     * @param username the username
+     * @param password the password
+     * @return user
      */
     @FormUrlEncoded
     @POST("login")
     Call<List<User>> login(@Field("username") String username, @Field("password") String password);
 
+    /**
+     * Sign up/ Register user.
+     * @param username the username
+     * @param password the password
+     * @return user
+     */
+    @FormUrlEncoded
+    @POST("register")
+    Call<List<User>> register(@Field("username") String username, @Field("password") String password);
+
     @GET("conversations/{userId}")
     Call<List<Conversation>> getConversations(@Path("userId") String userId);
+
 
 }

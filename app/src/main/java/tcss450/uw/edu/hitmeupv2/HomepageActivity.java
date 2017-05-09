@@ -12,6 +12,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -32,6 +34,9 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
 
     private static final String LIST1_TAB_TAG = "List1";
     private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+
+    private String [] mListArr = {"jason", "shema", "sherry"};
+
 
 
     @Override
@@ -62,11 +67,16 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        if(findViewById(R.id.fragment_container) != null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, new ChatFragment()).commit();
+        ArrayAdapter adapter = new ArrayAdapter<String>(this,R.layout.content_homepage_list, R.id.friendLabel, mListArr);
 
-        }
+        ListView list = (ListView) findViewById(R.id.conversationsList);
+        list.setAdapter(adapter);
+
+//        if(findViewById(R.id.fragment_container) != null) {
+//            getSupportFragmentManager().beginTransaction()
+//                    .add(R.id.fragment_container, new ChatFragment()).commit();
+//
+//        }
 
         //used to convert JSON to POJO (Plain old java object)
         Gson gson = new GsonBuilder().setLenient().create();
