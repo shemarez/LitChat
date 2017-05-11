@@ -15,7 +15,8 @@
         tools:replace="android:icon">
         <activity
             android:name=".LoginActivity"
-            android:theme="@style/LoginTheme">
+            android:theme="@style/LoginTheme"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,7 +25,8 @@
         </activity>
         <activity
             android:name=".SignupActivity"
-            android:theme="@style/LoginTheme" />
+            android:theme="@style/LoginTheme"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".HomepageActivity"
             android:label="@string/title_activity_homepage"

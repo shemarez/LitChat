@@ -42,7 +42,7 @@ public class MessageActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
         initControls();
-        // TODO: must update once communicating with server
+        //  must update once communicating with server
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
@@ -139,14 +139,16 @@ public class MessageActivity extends AppCompatActivity  {
         ChatMessage msg = new ChatMessage();
         msg.setId(1);
         msg.setMe(false);
-        msg.setMessage("Hi");
+        msg.setMessage("Welcome to LitChat");
 //        msg.setDate(DateFormat.getDateTimeInstance().format(new Date()));
         msg.setDate(getCurrentTime());
         chatHistory.add(msg);
         ChatMessage msg1 = new ChatMessage();
         msg1.setId(2);
         msg1.setMe(false);
-        msg1.setMessage("How r u doing???");
+        msg1.setMessage("As of right now, frontend messaging does not work. However " +
+                "the frontend display for messaging works! Please try typing and " +
+                "sending a message! Dont forget to use some emojis!");
 //        msg1.setDate(DateFormat.getDateTimeInstance().format(new Date()));
         msg1.setDate(getCurrentTime());
         chatHistory.add(msg1);

@@ -117,7 +117,6 @@ public class LoginActivity extends AppCompatActivity {
                         if (user.getMessage().equals("Success")) {
                             startActivity(intent); //Switch to new activity
                         } else {
-                            //TODO: Handle error when logging in. Pop up a toast?
                             Log.w("LoginActivity", "Login Error, Please Try Again");
                             snackbar.setText("Invalid username or password");
 

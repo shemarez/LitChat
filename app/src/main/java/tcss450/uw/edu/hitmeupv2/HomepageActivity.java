@@ -94,7 +94,7 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         MessagingAPI api = retrofit.create(MessagingAPI.class);
 
 
-        //TODO: This activity should remember the current mUserId, so when you press back, it doesnt crash
+        // This activity should remember the current mUserId, so when you press back, it doesnt crash
 //        if(getUserId != null) {
             System.out.println("mUserId: " + mUserId);
             Call<List<Conversation>> call = api.getConversations(mUserId);

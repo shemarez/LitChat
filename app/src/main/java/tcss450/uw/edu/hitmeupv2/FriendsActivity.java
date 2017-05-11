@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
@@ -31,7 +32,7 @@ import tcss450.uw.edu.hitmeupv2.WebService.User;
  * with that particular friend.
  */
 
-public class FriendsActivity extends AppCompatActivity {
+public class FriendsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     /** URL of app.*/
     private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
     /** List of friends/contacts.*/
@@ -122,13 +123,15 @@ public class FriendsActivity extends AppCompatActivity {
 //                        String lastMsg = convos.get(i).getMessage();
                         createRowItems(0, friend, null);
                     }
-                    // TODO: add new conversation with friend, to the homepage list, only if something was sent
-                    // TODO: when pressed launch message activity with that friends name
+                    // add new conversation with friend, to the homepage list, only if something was sent
+                    // when pressed launch message activity with that friends name
                     CustomListViewAdapter adapter = new CustomListViewAdapter(that,R.layout.activity_friends_list,
                             mFriendList);
 
                     ListView list = (ListView) findViewById(R.id.friendsList);
                     list.setAdapter(adapter);
+                    list.setOnItemClickListener(that);
+
 
                 }
             }
@@ -142,4 +145,9 @@ public class FriendsActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent(this, MessageActivity.class);
+        startActivity(intent);
+    }
 }
