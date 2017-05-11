@@ -21,6 +21,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
 import tcss450.uw.edu.hitmeupv2.WebService.User;
 
+/**
+ * Shema Rezanejad
+ * Jason Thai
+ *
+ * Allows user to login to application, and displays signup screen.
+ */
 public class LoginActivity extends AppCompatActivity {
 
     /*
@@ -31,9 +37,6 @@ public class LoginActivity extends AppCompatActivity {
      * Use this if you want to test on a local server with emulator
      */
     private static final String TEST_URL = "http://10.0.2.2:8888/";
-
-    private String username;
-    private String password;
 
     private EditText usernameEditText;
     private EditText passwordEditText;
@@ -56,19 +59,25 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Handle what occurs once user clicks login button.
+     * Sends info to server, returns whether the login
+     * is correct.
+     * @param view the view
+     */
     public void clickedLogin(View view) {
         final Intent intent = new Intent(this, HomepageActivity.class);
-        username = usernameEditText.getText().toString(); //grab username
-        password = passwordEditText.getText().toString(); //grab password
+        String username = usernameEditText.getText().toString(); //grab username
+        String password = passwordEditText.getText().toString(); //grab password
 
         final View parentLayout = findViewById(R.id.passwordEditText);
+        final Snackbar snackbar = Snackbar
+                .make(parentLayout, "Please enter a valid username or password", Snackbar.LENGTH_LONG);
+        snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
+
 
         // check if editText is empty
         if(username.length() == 0 || password.length() == 0) {
-            Snackbar snackbar = Snackbar
-                    .make(parentLayout, "Please enter a valid Username or Password", Snackbar.LENGTH_LONG);
-            snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
-
             snackbar.show();
         } else {
             //used to convert JSON to POJO (Plain old java object)
@@ -110,9 +119,7 @@ public class LoginActivity extends AppCompatActivity {
                         } else {
                             //TODO: Handle error when logging in. Pop up a toast?
                             Log.w("LoginActivity", "Login Error, Please Try Again");
-                            Snackbar snackbar = android.support.design.widget.Snackbar
-                                    .make(parentLayout, "Invalid username or password", android.support.design.widget.Snackbar.LENGTH_LONG);
-                            snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                            snackbar.setText("Invalid username or password");
 
                             snackbar.show();
                         }

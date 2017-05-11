@@ -1,12 +1,16 @@
 package tcss450.uw.edu.hitmeupv2.WebService;
 
 /**
- * Used to read user information from the web service
+ * Jason Thai
+ * Shema Rezanejad
+ *
+ * Used to read user information from the web service.
  */
 
 public class User {
-
+    /** Store username. */
     private String username;
+    /** Store password. */
     private String password;
 
     /*
@@ -14,20 +18,39 @@ public class User {
      * or "Error" which means user not found
      */
     private String message;
+    /**
+     * Store userId from user.
+     */
     private String userId;
 
+    /**
+     * Getter
+     * @return username
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Getter.
+     * @return password
+     */
     public String getPassword() {
         return password;
     }
 
+    /**
+     * Getter.
+     * @return message
+     */
     public String getMessage() {
         return message;
     }
 
+    /**
+     * Getter.
+     * @return userId
+     */
     public String getUserId() {
         return userId;
     }

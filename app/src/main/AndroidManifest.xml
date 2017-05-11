@@ -40,7 +40,11 @@
         <activity
             android:name=".FriendsActivity"
             android:label="@string/title_activity_friends"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="tcss450.uw.edu.hitmeupv2.HomepageActivity" />
+        </activity>
     </application>
 
 </manifest>

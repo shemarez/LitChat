@@ -17,14 +17,23 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-
+/**
+ * Shema Rezanejad
+ * Jason Thai
+ *
+ * Displays the conversation screen, where you can converse with your friend.
+ */
 
 public class MessageActivity extends AppCompatActivity  {
-
+    /** String from edit text that sender is writing. */
     private EditText messageET;
+    /** Container for all messages. */
     private ListView messagesContainer;
+    /** Send button. */
     private ImageButton sendBtn;
+    /** Message adapter . */
     private MessageAdapter adapter;
+    /** History of conversations. */
     private ArrayList<ChatMessage> chatHistory;
 
     @Override
@@ -32,15 +41,12 @@ public class MessageActivity extends AppCompatActivity  {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
-
-
-
         initControls();
+        // TODO: must update once communicating with server
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -65,6 +71,10 @@ public class MessageActivity extends AppCompatActivity  {
 
     }
 
+    /**
+     * Loading messages, and handling what happens once the send button
+     * has been clicked.
+     */
     private void initControls() {
         messagesContainer = (ListView) findViewById(R.id.messagesContainer);
         messageET = (EditText) findViewById(R.id.messageEdit);
@@ -100,16 +110,28 @@ public class MessageActivity extends AppCompatActivity  {
 
     }
 
+    /**
+     * Displaying the message inside the 9 patch image.
+     * @param message the string being sent
+     */
     public void displayMessage(ChatMessage message) {
         adapter.add(message);
         adapter.notifyDataSetChanged();
         scroll();
     }
 
+    /**
+     * Allows you to scroll through the list.
+     */
     private void scroll() {
+
         messagesContainer.setSelection(messagesContainer.getCount() - 1);
     }
 
+    /**
+     * Loading chat history. Right now
+     * this is just loading dummy data.
+     */
     private void loadDummyHistory(){
 
         chatHistory = new ArrayList<ChatMessage>();
@@ -140,12 +162,21 @@ public class MessageActivity extends AppCompatActivity  {
     }
 
 
+    /**
+     * Gets the current time from Simple date format.
+     * @return a time
+     */
     public String getCurrentTime() {
-        SimpleDateFormat timeFormat = new SimpleDateFormat("K:mm");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("K:mm a");
 
         return timeFormat.format(new Date());
 
     }
+
+    /**
+     * Getter for chat history.
+     * @return list of conversation
+     */
     public ArrayList<ChatMessage> getChatHistory() {
         return chatHistory;
     }

@@ -65,8 +65,10 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     /**
-     * Event handler attached to sign up button
-     * @param v
+     * Event handler attached to sign up button. Handles what
+     * will occur once the sign up is clicked. In this case, it will
+     * talk to the web server and insert the information.
+     * @param v the view
      */
     public void clickedSignUp(View v) {
         final Intent intent = new Intent(this, LoginActivity.class);
@@ -77,7 +79,7 @@ public class SignupActivity extends AppCompatActivity {
         View parentLayout = findViewById(R.id.passwordEditText);
         if(username.length() == 0 || password.length() == 0) {
             Snackbar snackbar = Snackbar
-                    .make(parentLayout, "Please enter a valid Username or Password", Snackbar.LENGTH_LONG);
+                    .make(parentLayout, "Please enter a valid username or password", Snackbar.LENGTH_LONG);
             snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
 
             snackbar.show();

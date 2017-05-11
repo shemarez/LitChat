@@ -36,8 +36,21 @@ public interface MessagingAPI {
     @POST("register")
     Call<List<User>> register(@Field("username") String username, @Field("password") String password);
 
+    /**
+     * Get last conversation from recipient.
+     * @param userId users id
+     * @return conversation
+     */
     @GET("conversations/{userId}")
     Call<List<Conversation>> getConversations(@Path("userId") String userId);
+
+    /**
+     * Get all friends
+     * @param userId users id
+     * @return a user
+     */
+    @GET("contacts/{userId}")
+    Call<List<User>> getContacts(@Path("userId") String userId);
 
 
 }

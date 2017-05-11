@@ -1,34 +1,40 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
+
     <ImageView
         android:id="@+id/profile_pic"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="6dip"
         android:padding="5dp"
-        android:src="@mipmap/androidiconround"
-        android:layout_centerVertical="true"/>
+        android:src="@mipmap/androidiconround" />
+    <TextView
+        android:id="@+id/lastConvo"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/profile_pic"
+        android:textColor="@color/textColorHint"
+        android:gravity="center_vertical"
+      >
+    </TextView>
+
     <TextView
         android:id="@+id/friendLabel"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:paddingTop="5dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
         android:layout_toRightOf="@id/profile_pic"
-        android:layout_centerVertical="true">
+        android:textColor="@color/textMessageColor"
+        android:textSize="20sp">
+
     </TextView>
-    <TextView
-        android:id="@+id/subItem"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:textAppearance="?attr/textAppearanceListItem"
-        android:layout_below="@+id/friendLabel"
-        android:layout_toRightOf="@+id/profile_pic"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="5dp"
-        android:textColor="@color/textColorHint"/>
 </RelativeLayout>
