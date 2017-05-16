@@ -21,6 +21,7 @@ import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,6 +53,7 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
     private  String mUserId;
     /** Storing user id. */
     private  int mSenderId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,11 +116,17 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                         System.out.println("here");
                         List<Conversation> convos = response.body();
                         for (int i = 0; i < convos.size(); i++) {
-                            System.out.println("Recipient id: " + convos.get(i).getRecipientId());
                             Conversation friend = convos.get(i);
                             String friendName = friend.getRecipientName();
-                            int friendId = convos.get(i).getRecipientId();
+                            String friendId = convos.get(i).getRecipientId();
                             String lastMsg = convos.get(i).getMessage();
+//                            System.out.println("Message id " + friend.getMessageId());
+//                            System.out.println("Recipient id: " + convos.get(i).getRecipientId());
+//                            System.out.println("recipient name" + friend.getRecipientName());
+//                            System.out.println("sender id " + friend.getSenderId());
+//                            System.out.println("lastmsg " + lastMsg);
+//                            System.out.println("created at" + friend.getCreated_at());
+
 
                             mFriendMap.put(i, friend);
                             createRowItems(0, friendName, lastMsg);
@@ -232,19 +240,18 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         Intent intent = new Intent(this, MessageActivity.class);
         Bundle extras = new Bundle(); // for passing multiple values
         extras.putInt("senderId", mSenderId);
-        extras.putInt("recieverId", 242);
+//        extras.putInt("recieverId", 242);
 
-        // TODO Find out why recipient id is zero, is not being set in Conversation?
-//        for (Map.Entry<Integer, Conversation> entry : mFriendMap.entrySet()) {
-//            int key = entry.getKey();
-//            int recieverId = entry.getValue().getRecipientId();
-//            if(key == position) {
+        for (Map.Entry<Integer, Conversation> entry : mFriendMap.entrySet()) {
+            int key = entry.getKey();
+            int recieverId = Integer.parseInt(entry.getValue().getRecipientId());
+            String username = entry.getValue().getRecipientName();
+            if(key == position) {
 //                System.out.println(recieverId);
-//
-////                extras.putString("recieverId", recieverId);
-//                extras.putInt("recieverId", recieverId);
-//            }
-//        }
+                extras.putInt("recieverId", recieverId);
+                extras.putString("recieverUsername",username);
+            }
+        }
 
         intent.putExtras(extras);
 //        intent.putExtra("senderId", mUserId);

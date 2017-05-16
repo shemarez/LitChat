@@ -59,5 +59,18 @@ public interface MessagingAPI {
     @GET("messages/{senderId}/{recieverId}")
     Call<List<ChatMessage>> getMessages(@Path("senderId") int senderId, @Path("recieverId") int recieverId);
 
+    /**
+     * Sign up/ Register user.
+     * @param username the username
+     * @param password the password
+     * @return user
+     */
+    @FormUrlEncoded
+    @POST("send-message/{senderId}/{reciverId}")
+    Call<List<User>> sendMessages(@Field("username") String username, @Field("password") String password);
+
+
+
+    // for pictures use @Multipart
 
 }

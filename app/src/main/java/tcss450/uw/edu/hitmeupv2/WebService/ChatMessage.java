@@ -6,24 +6,24 @@ package tcss450.uw.edu.hitmeupv2.WebService;
 
 public class ChatMessage {
     /** The message id. */
-    private int id;
+    private int message_id;
     /** Checking if the user is the sender. */
     private boolean isMe;
     /** Storing the message. */
     private String message;
     /** Storing the user id. */
-    private int userId;
+    private int user_id;
     /** Storing the recipient id. */
-    private int recieverId;
+    private int recipient_id;
     /** Storing the date and time of message. */
-    private String dateTime;
+    private String created_at;
 
     /**
      * Getter.
      * @return message id
      */
     public int getId() {
-        return id;
+        return message_id;
     }
 
     /**
@@ -31,7 +31,7 @@ public class ChatMessage {
      * @param id message id
      */
     public void setId(int id) {
-        this.id = id;
+        this.message_id = id;
     }
 
     /**
@@ -71,7 +71,7 @@ public class ChatMessage {
      * @return get user id
      */
     public long getUserId() {
-        return userId;
+        return user_id;
     }
 
     /** Setter
@@ -79,21 +79,21 @@ public class ChatMessage {
      * @param userId set the new user id
      */
     public void setUserId(int userId) {
-        this.userId = userId;
+        this.user_id = userId;
     }
     /** Date
      *
      * @return  a date
      */
     public String getDate() {
-        return dateTime;
+        return created_at;
     }
     /** Setter
      *
      * @param dateTime set the new date
      */
     public void setDate(String dateTime) {
-        this.dateTime = dateTime;
+        this.created_at = dateTime;
     }
 
     /**
@@ -101,7 +101,7 @@ public class ChatMessage {
      * @return the recipient id
      */
     public int getRecieverId() {
-        return recieverId;
+        return recipient_id;
     }
 
     /**
@@ -109,6 +109,6 @@ public class ChatMessage {
      * @param recieverId the id
      */
     public void setRecieverId(int recieverId) {
-        this.recieverId = recieverId;
+        this.recipient_id = recieverId;
     }
 }

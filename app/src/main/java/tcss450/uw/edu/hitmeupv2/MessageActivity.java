@@ -59,6 +59,12 @@ public class MessageActivity extends AppCompatActivity  {
     /** Stores the current users id */
     private int mRecieverId;
 
+    public MessageActivity() {
+        chatHistory = new ArrayList<>();
+
+
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,16 +78,12 @@ public class MessageActivity extends AppCompatActivity  {
 
         snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
         /** FOR DEBUGGING PURPOSES REMOVE LATER */
-
-        //Call the getConversations method from the interface that we created
         mSenderId = getIntent().getExtras().getInt("senderId");
-
         mRecieverId = getIntent().getExtras().getInt("recieverId");
-
+        //Call the getConversations method from the interface that we created
         snackbar.setText("senderId: " + mSenderId + " recieverId: " + mRecieverId);
 
         snackbar.show();
-
         initControls();
         getChatHistory();
         //  must update once communicating with server
@@ -122,12 +124,13 @@ public class MessageActivity extends AppCompatActivity  {
         messageET = (EditText) findViewById(R.id.messageEdit);
         sendBtn = (ImageButton) findViewById(R.id.chatSendButton);
 
-//        TextView meLabel = (TextView) findViewById(R.id.meLbl);
-//        TextView companionLabel = (TextView) findViewById(R.id.friendLabel);
-        RelativeLayout container = (RelativeLayout) findViewById(R.id.container);
-//        companionLabel.setText("My Buddy");
+        adapter = new MessageAdapter(MessageActivity.this, new ArrayList<ChatMessage>());
+        messagesContainer.setAdapter(adapter);
 
-        loadDummyHistory();
+        RelativeLayout container = (RelativeLayout) findViewById(R.id.container);
+
+
+       // loadDummyHistory();
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,10 +198,7 @@ public class MessageActivity extends AppCompatActivity  {
         msg1.setDate(getCurrentTime());
         chatHistory.add(msg1);
 
-        adapter = new MessageAdapter(MessageActivity.this, new ArrayList<ChatMessage>());
-        messagesContainer.setAdapter(adapter);
-
-        for(int i=0; i<chatHistory.size(); i++) {
+        for(int i=0; i < chatHistory.size(); i++) {
             ChatMessage message = chatHistory.get(i);
             displayMessage(message);
         }
@@ -247,12 +247,14 @@ public class MessageActivity extends AppCompatActivity  {
                     System.out.println("here");
                     chatHistory = response.body();
 
-                    for(int i=0; i < response.body().size(); i++) {
+                    for(int i=0; i < chatHistory.size(); i++) {
 
-//                        ChatMessage message = chatHistory.get(i);
-//
-                        System.out.println(response.body().get(i));
-//                        displayMessage(message);
+                        ChatMessage msg = chatHistory.get(i);
+                        msg.setMe(false);
+
+                        String message = msg.getMessage();
+                        // TODO: 5/16/2017  fix datetime format
+                        displayMessage(msg);
                     }
                 }
             }
@@ -263,6 +265,11 @@ public class MessageActivity extends AppCompatActivity  {
                 t.printStackTrace();
             }
         });
+
+    }
+
+
+    public void postMessage(ChatMessage theMessage) {
 
     }
 
