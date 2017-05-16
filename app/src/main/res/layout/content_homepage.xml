@@ -26,8 +26,8 @@
         android:id="@+id/conversationsList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@color/textColorHint"
-        android:dividerHeight="1dp"
+        android:divider="@drawable/list_divider"
+        android:dividerHeight="2dp"
         android:footerDividersEnabled="false"
         android:headerDividersEnabled="false"></ListView>
 

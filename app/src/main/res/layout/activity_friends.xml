@@ -25,8 +25,8 @@
         android:id="@+id/friendsList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@color/textColorHint"
-        android:dividerHeight="1dp" />
+        android:divider="@drawable/list_divider"
+        android:dividerHeight="2dp" />
 
 
 </LinearLayout>

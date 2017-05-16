@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -45,8 +46,12 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
     private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
     /** List of friends.*/
     private ArrayList<RowItem> mFriendList = new ArrayList<RowItem>();
+    /** Map last convo to the friends id. */
+    private HashMap<Integer, Conversation> mFriendMap = new HashMap<Integer, Conversation> ();
     /** Storing user id. */
     private  String mUserId;
+    /** Storing user id. */
+    private  int mSenderId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +63,7 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         final HomepageActivity  that = this;
         //Call the getConversations method from the interface that we created
         mUserId = getIntent().getExtras().getString("userId");
+        mSenderId = Integer.parseInt(mUserId);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -108,15 +114,21 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                         System.out.println("here");
                         List<Conversation> convos = response.body();
                         for (int i = 0; i < convos.size(); i++) {
-                            System.out.println(convos.get(i).getRecipientName());
-                            String friend = convos.get(i).getRecipientName();
+                            System.out.println("Recipient id: " + convos.get(i).getRecipientId());
+                            Conversation friend = convos.get(i);
+                            String friendName = friend.getRecipientName();
+                            int friendId = convos.get(i).getRecipientId();
                             String lastMsg = convos.get(i).getMessage();
-                            createRowItems(0, friend, lastMsg);
+
+                            mFriendMap.put(i, friend);
+                            createRowItems(0, friendName, lastMsg);
                         }
 
-                        // TODO: Launch message activity when a rowitem is pressed
                         CustomListViewAdapter adapter = new CustomListViewAdapter(that,R.layout.content_homepage_list,
-                                mFriendList);
+                                mFriendList, true);
+
+                        adapter.setmTitle(R.id.friendLabel);
+                        adapter.setmSubtitleTitle(R.id.lastConvo);
 
                         ListView list = (ListView) findViewById(R.id.conversationsList);
                         list.setAdapter(adapter);
@@ -197,17 +209,17 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
 //        } else if (id == R.id.nav_manage) {
 //
 //        } else
-            if (id == R.id.nav_share) {
+            if (id == R.id.nav_friends) {
                 Intent friendIntent = new Intent(this, FriendsActivity.class);
                 friendIntent.putExtra("userId", mUserId);
                 startActivity(friendIntent);
 
+            } else if (id == R.id.nav_profile) {
+                Intent profileIntent = new Intent(this, ProfileActivity.class);
+                profileIntent.putExtra("userId", mUserId);
+                startActivity(profileIntent);
 
-
-            }
-//        else if (id == R.id.nav_send) {
-//
-//        }
+              }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -218,6 +230,24 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(this, MessageActivity.class);
+        Bundle extras = new Bundle(); // for passing multiple values
+        extras.putInt("senderId", mSenderId);
+        extras.putInt("recieverId", 242);
+
+        // TODO Find out why recipient id is zero, is not being set in Conversation?
+//        for (Map.Entry<Integer, Conversation> entry : mFriendMap.entrySet()) {
+//            int key = entry.getKey();
+//            int recieverId = entry.getValue().getRecipientId();
+//            if(key == position) {
+//                System.out.println(recieverId);
+//
+////                extras.putString("recieverId", recieverId);
+//                extras.putInt("recieverId", recieverId);
+//            }
+//        }
+
+        intent.putExtras(extras);
+//        intent.putExtra("senderId", mUserId);
         startActivity(intent);
 
     }

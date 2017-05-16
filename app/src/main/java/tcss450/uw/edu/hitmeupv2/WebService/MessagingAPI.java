@@ -51,6 +51,13 @@ public interface MessagingAPI {
      */
     @GET("contacts/{userId}")
     Call<List<User>> getContacts(@Path("userId") String userId);
+    /**
+     * Get all messages
+     * @param senderId users id
+     * @return a user
+     */
+    @GET("messages/{senderId}/{recieverId}")
+    Call<List<ChatMessage>> getMessages(@Path("senderId") int senderId, @Path("recieverId") int recieverId);
 
 
 }

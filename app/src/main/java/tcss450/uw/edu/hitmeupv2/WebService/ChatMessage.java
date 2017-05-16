@@ -1,4 +1,4 @@
-package tcss450.uw.edu.hitmeupv2;
+package tcss450.uw.edu.hitmeupv2.WebService;
 
 /**
  * Created by Shema on 4/20/2017.
@@ -6,13 +6,15 @@ package tcss450.uw.edu.hitmeupv2;
 
 public class ChatMessage {
     /** The message id. */
-    private long id;
+    private int id;
     /** Checking if the user is the sender. */
     private boolean isMe;
     /** Storing the message. */
     private String message;
     /** Storing the user id. */
-    private Long userId;
+    private int userId;
+    /** Storing the recipient id. */
+    private int recieverId;
     /** Storing the date and time of message. */
     private String dateTime;
 
@@ -20,7 +22,7 @@ public class ChatMessage {
      * Getter.
      * @return message id
      */
-    public long getId() {
+    public int getId() {
         return id;
     }
 
@@ -28,7 +30,7 @@ public class ChatMessage {
      * Setter.
      * @param id message id
      */
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -76,7 +78,7 @@ public class ChatMessage {
      *
      * @param userId set the new user id
      */
-    public void setUserId(long userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
     /** Date
@@ -92,5 +94,21 @@ public class ChatMessage {
      */
     public void setDate(String dateTime) {
         this.dateTime = dateTime;
+    }
+
+    /**
+     * Setter
+     * @return the recipient id
+     */
+    public int getRecieverId() {
+        return recieverId;
+    }
+
+    /**
+     * Setter
+     * @param recieverId the id
+     */
+    public void setRecieverId(int recieverId) {
+        this.recieverId = recieverId;
     }
 }

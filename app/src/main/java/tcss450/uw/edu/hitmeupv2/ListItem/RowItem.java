@@ -22,13 +22,23 @@ public class RowItem {
     private String mSubItem;
 
     /**
-     * RowItem Constructer.
+     * RowItem Overloaded Constructer.
      * @param imgId profile picture id.
      * @param title friend name
      * @param subItem subItem of every item
      */
     public RowItem(int imgId, String title, String subItem) {
         this.mImgId = imgId;
+        this.mTitle = title;
+        this.mSubItem = subItem;
+    }
+
+    /**
+     * Constructor if there is no img.
+     * @param title friend name
+     * @param subItem subItem of every it
+     */
+    public RowItem(String title, String subItem) {
         this.mTitle = title;
         this.mSubItem = subItem;
     }

@@ -2,16 +2,18 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/profile_pic"
         android:layout_width="75dp"
         android:layout_height="75dp"
+        android:src="@mipmap/androidicon"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="6dip"
-        android:padding="5dp"
-        android:src="@mipmap/androidiconround" />
+        android:padding="5dp"/>
+
     <TextView
         android:id="@+id/lastConvo"
         android:layout_width="fill_parent"

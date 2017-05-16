@@ -126,7 +126,9 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
                     // add new conversation with friend, to the homepage list, only if something was sent
                     // when pressed launch message activity with that friends name
                     CustomListViewAdapter adapter = new CustomListViewAdapter(that,R.layout.activity_friends_list,
-                            mFriendList);
+                            mFriendList, false);
+                    adapter.setmTitle(R.id.label);
+//                    adapter.setmSubtitleTitle(R.id.lastConvo);
 
                     ListView list = (ListView) findViewById(R.id.friendsList);
                     list.setAdapter(adapter);

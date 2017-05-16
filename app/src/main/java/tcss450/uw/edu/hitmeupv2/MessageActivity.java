@@ -2,6 +2,7 @@ package tcss450.uw.edu.hitmeupv2;
 
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -13,9 +14,21 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import tcss450.uw.edu.hitmeupv2.WebService.ChatMessage;
+import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
 
 /**
  * Shema Rezanejad
@@ -25,6 +38,12 @@ import java.util.Date;
  */
 
 public class MessageActivity extends AppCompatActivity  {
+
+
+    /**
+     * Use this if you want to test on a local server with emulator
+     */
+    private static final String TEST_URL = "http://10.0.2.2:8888/";
     /** String from edit text that sender is writing. */
     private EditText messageET;
     /** Container for all messages. */
@@ -34,14 +53,37 @@ public class MessageActivity extends AppCompatActivity  {
     /** Message adapter . */
     private MessageAdapter adapter;
     /** History of conversations. */
-    private ArrayList<ChatMessage> chatHistory;
+    private List<ChatMessage> chatHistory;
+    /** Stores the current users id */
+    private int mSenderId;
+    /** Stores the current users id */
+    private int mRecieverId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
+        /** FOR DEBUGGING PURPOSES REMOVE LATER */
+
+        final View parentLayout = findViewById(R.id.messageEdit);
+        final Snackbar snackbar = Snackbar
+                .make(parentLayout, "", Snackbar.LENGTH_LONG);
+
+        snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
+        /** FOR DEBUGGING PURPOSES REMOVE LATER */
+
+        //Call the getConversations method from the interface that we created
+        mSenderId = getIntent().getExtras().getInt("senderId");
+
+        mRecieverId = getIntent().getExtras().getInt("recieverId");
+
+        snackbar.setText("senderId: " + mSenderId + " recieverId: " + mRecieverId);
+
+        snackbar.show();
+
         initControls();
+        getChatHistory();
         //  must update once communicating with server
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -175,13 +217,55 @@ public class MessageActivity extends AppCompatActivity  {
 
     }
 
+
+
     /**
      * Getter for chat history.
      * @return list of conversation
      */
-    public ArrayList<ChatMessage> getChatHistory() {
-        return chatHistory;
+    private void getChatHistory() {
+        final MessageActivity that = this;
+
+        //used to convert JSON to POJO (Plain old java object)
+        Gson gson = new GsonBuilder().setLenient().create();
+
+        //Set up retrofit to make our API call
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(TEST_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        //More setup
+        MessagingAPI api = retrofit.create(MessagingAPI.class);
+
+        Call<List<ChatMessage>> call = api.getMessages(mSenderId, mRecieverId);
+        call.enqueue(new Callback<List<ChatMessage>>() {
+            @Override
+            public void onResponse(Call<List<ChatMessage>> call, Response<List<ChatMessage>> response) {
+                System.out.println(response);
+                if (response.isSuccessful()) {
+                    System.out.println("here");
+                    chatHistory = response.body();
+
+                    for(int i=0; i < response.body().size(); i++) {
+
+//                        ChatMessage message = chatHistory.get(i);
+//
+                        System.out.println(response.body().get(i));
+//                        displayMessage(message);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ChatMessage>> call, Throwable t) {
+                System.out.println("fail");
+                t.printStackTrace();
+            }
+        });
+
     }
+
 
 
 

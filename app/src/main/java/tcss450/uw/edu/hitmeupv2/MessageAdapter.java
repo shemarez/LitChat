@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import tcss450.uw.edu.hitmeupv2.WebService.ChatMessage;
+
 /**
  * Created by Shema on 4/20/2017.
  */

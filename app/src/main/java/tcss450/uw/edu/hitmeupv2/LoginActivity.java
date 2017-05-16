@@ -1,5 +1,6 @@
 package tcss450.uw.edu.hitmeupv2;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -28,7 +29,6 @@ import tcss450.uw.edu.hitmeupv2.WebService.User;
  * Allows user to login to application, and displays signup screen.
  */
 public class LoginActivity extends AppCompatActivity {
-
     /*
      * Production server
      */
@@ -37,6 +37,10 @@ public class LoginActivity extends AppCompatActivity {
      * Use this if you want to test on a local server with emulator
      */
     private static final String TEST_URL = "http://10.0.2.2:8888/";
+    /**
+     * Loading circle, for when server is sleeping.
+     */
+    private ProgressDialog mLoadingScreen;
 
     private EditText usernameEditText;
     private EditText passwordEditText;
@@ -45,6 +49,9 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        mLoadingScreen = new ProgressDialog(LoginActivity.this);
+
 
         usernameEditText = (EditText) findViewById(R.id.usernameEditText);
         passwordEditText = (EditText) findViewById(R.id.passwordEditText);
@@ -66,6 +73,12 @@ public class LoginActivity extends AppCompatActivity {
      * @param view the view
      */
     public void clickedLogin(View view) {
+        mLoadingScreen.setTitle("Please Wait");
+        mLoadingScreen.setMessage("Loading...");
+        mLoadingScreen.setIndeterminate(false);
+        mLoadingScreen.setCancelable(true);
+        mLoadingScreen.show();
+
         final Intent intent = new Intent(this, HomepageActivity.class);
         String username = usernameEditText.getText().toString(); //grab username
         String password = passwordEditText.getText().toString(); //grab password
@@ -79,6 +92,7 @@ public class LoginActivity extends AppCompatActivity {
         // check if editText is empty
         if(username.length() == 0 || password.length() == 0) {
             snackbar.show();
+            mLoadingScreen.dismiss();
         } else {
             //used to convert JSON to POJO (Plain old java object)
             Gson gson = new GsonBuilder().setLenient().create();
@@ -116,10 +130,11 @@ public class LoginActivity extends AppCompatActivity {
                         //Was successful
                         if (user.getMessage().equals("Success")) {
                             startActivity(intent); //Switch to new activity
+                            mLoadingScreen.dismiss();
                         } else {
                             Log.w("LoginActivity", "Login Error, Please Try Again");
+                            mLoadingScreen.dismiss();
                             snackbar.setText("Invalid username or password");
-
                             snackbar.show();
                         }
                     }
@@ -128,6 +143,9 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Call<List<User>> call, Throwable t) {
                     System.out.println("fail");
+                    mLoadingScreen.dismiss();
+                    snackbar.setText("Something went wrong. Please retry.");
+                    snackbar.show();
                     t.printStackTrace();
                 }
             });

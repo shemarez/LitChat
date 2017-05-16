@@ -23,10 +23,31 @@ import tcss450.uw.edu.hitmeupv2.ListItem.RowItem;
 
 public class CustomListViewAdapter extends ArrayAdapter<RowItem> {
     /**
+     * Sets layout for the view being used.
+     */
+    private int mLayout;
+    /**
+     * Label for title
+     */
+    private int mTitle;
+    /**
+     * Label for subtitle
+     */
+    private int mSubtitle;
+    /**
+     * holds image.
+     */
+    private int mImg;
+    /**
      * Context.
      */
     private Context mContext;
 
+    /**
+     * checks if it needs a subtitle
+     */
+
+    private boolean hasSubtitle;
     /**
      * Constructor
      * @param context the activity
@@ -34,9 +55,18 @@ public class CustomListViewAdapter extends ArrayAdapter<RowItem> {
      * @param items the items
      */
     public CustomListViewAdapter(Context context, int resourceId,
-                                 List<RowItem> items) {
+                                 List<RowItem> items, boolean hasSubtitle) {
         super(context, resourceId, items);
         this.mContext = context;
+        this.mLayout = resourceId;
+        this.hasSubtitle = hasSubtitle;
+    }
+
+    public void setmTitle(int title) {
+        this.mTitle = title;
+    }
+    public void setmSubtitleTitle(int subTitle) {
+        this.mSubtitle = subTitle;
     }
 
     /*private view holder class*/
@@ -61,17 +91,29 @@ public class CustomListViewAdapter extends ArrayAdapter<RowItem> {
         LayoutInflater mInflater = (LayoutInflater) mContext
                 .getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.content_homepage_list, null);
+            convertView = mInflater.inflate(mLayout, null);
             holder = new ViewHolder();
-            holder.txtDesc = (TextView) convertView.findViewById(R.id.lastConvo);
-            holder.txtTitle = (TextView) convertView.findViewById(R.id.friendLabel);
+            if(this.hasSubtitle) {
+                holder.txtDesc = (TextView) convertView.findViewById(mSubtitle);
+                holder.txtTitle = (TextView) convertView.findViewById(mTitle);
+
+            } else {
+                holder.txtTitle = (TextView) convertView.findViewById(mTitle);
+
+            }
+
 //            holder.imageView = (ImageView) convertView.findViewById(R.id.profile_pic);
             convertView.setTag(holder);
         } else
             holder = (ViewHolder) convertView.getTag();
-//
-        holder.txtDesc.setText(rowItem.getmSubItem());
-        holder.txtTitle.setText(rowItem.getmTitle());
+        if(this.hasSubtitle) {
+            holder.txtDesc.setText(rowItem.getmSubItem());
+            holder.txtTitle.setText(rowItem.getmTitle());
+
+        } else {
+            holder.txtTitle.setText(rowItem.getmTitle());
+        }
+
 //        holder.imageView.setImageResource(rowItem.getmImgId());
 
         return convertView;

@@ -15,8 +15,8 @@
         tools:replace="android:icon">
         <activity
             android:name=".LoginActivity"
-            android:theme="@style/LoginTheme"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/LoginTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,8 +25,8 @@
         </activity>
         <activity
             android:name=".SignupActivity"
-            android:theme="@style/LoginTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/LoginTheme" />
         <activity
             android:name=".HomepageActivity"
             android:label="@string/title_activity_homepage"
@@ -42,6 +42,14 @@
         <activity
             android:name=".FriendsActivity"
             android:label="@string/title_activity_friends"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="tcss450.uw.edu.hitmeupv2.HomepageActivity" />
+        </activity>
+        <activity
+            android:name=".ProfileActivity"
+            android:label="@string/title_activity_profile"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
