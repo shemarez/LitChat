@@ -57,7 +57,7 @@ public class MessageActivity extends AppCompatActivity  {
     /** Stores the current users id */
     private int mSenderId;
     /** Stores the current users id */
-    private int mRecieverId;
+    private String mRecipientId;
 
     public MessageActivity() {
         chatHistory = new ArrayList<>();
@@ -79,9 +79,9 @@ public class MessageActivity extends AppCompatActivity  {
         snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
         /** FOR DEBUGGING PURPOSES REMOVE LATER */
         mSenderId = getIntent().getExtras().getInt("senderId");
-        mRecieverId = getIntent().getExtras().getInt("recieverId");
+        mRecipientId = getIntent().getExtras().getString("recipientId");
         //Call the getConversations method from the interface that we created
-        snackbar.setText("senderId: " + mSenderId + " recieverId: " + mRecieverId);
+        snackbar.setText("senderId: " + mSenderId + " recipientId: " + mRecipientId);
 
         snackbar.show();
         initControls();
@@ -238,7 +238,7 @@ public class MessageActivity extends AppCompatActivity  {
         //More setup
         MessagingAPI api = retrofit.create(MessagingAPI.class);
 
-        Call<List<ChatMessage>> call = api.getMessages(mSenderId, mRecieverId);
+        Call<List<ChatMessage>> call = api.getMessages(mSenderId, mRecipientId);
         call.enqueue(new Callback<List<ChatMessage>>() {
             @Override
             public void onResponse(Call<List<ChatMessage>> call, Response<List<ChatMessage>> response) {

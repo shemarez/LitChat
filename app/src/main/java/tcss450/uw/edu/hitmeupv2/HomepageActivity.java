@@ -45,6 +45,7 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         AdapterView.OnItemClickListener {
     /** URL for site */
     private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+    private static final String TEST_URL = "http://10.0.2.2:8888/";
     /** List of friends.*/
     private ArrayList<RowItem> mFriendList = new ArrayList<RowItem>();
     /** Map last convo to the friends id. */
@@ -53,6 +54,8 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
     private  String mUserId;
     /** Storing user id. */
     private  int mSenderId;
+
+    private String mRecipientId;
 
 
     @Override
@@ -94,7 +97,7 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
 
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(TEST_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -113,23 +116,39 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                 public void onResponse(Call<List<Conversation>> call, Response<List<Conversation>> response) {
                     System.out.println(response);
                     if (response.isSuccessful()) {
-                        System.out.println("here");
                         List<Conversation> convos = response.body();
                         for (int i = 0; i < convos.size(); i++) {
-                            Conversation friend = convos.get(i);
-                            String friendName = friend.getRecipientName();
+                            Conversation convo = convos.get(i);
+                            String friendName = convo.getRecipientName();
                             String friendId = convos.get(i).getRecipientId();
                             String lastMsg = convos.get(i).getMessage();
-//                            System.out.println("Message id " + friend.getMessageId());
-//                            System.out.println("Recipient id: " + convos.get(i).getRecipientId());
-//                            System.out.println("recipient name" + friend.getRecipientName());
-//                            System.out.println("sender id " + friend.getSenderId());
-//                            System.out.println("lastmsg " + lastMsg);
-//                            System.out.println("created at" + friend.getCreated_at());
+                            System.out.println("Message id " + convo.getMessageId());
+                            System.out.println("Recipient id: " + convos.get(i).getRecipientId());
+                            System.out.println("recipient name" + convo.getRecipientName());
+                            System.out.println("sender id " + convo.getSenderId());
+                            System.out.println("sender name: " + convo.getSenderName());
+                            System.out.println("lastmsg " + lastMsg);
+                            System.out.println("created at" + convo.getCreatedAt());
 
 
-                            mFriendMap.put(i, friend);
-                            createRowItems(0, friendName, lastMsg);
+                            mFriendMap.put(i, convo);
+
+                            System.out.println(mUserId);
+                            System.out.println(convo.getSenderId());
+
+                            String senderId = convo.getSenderId();
+
+
+                            if (mUserId.equals(senderId)) {
+                                System.out.println("equals");
+                                createRowItems(0, convo.getRecipientName(), lastMsg);
+                                mRecipientId = convo.getRecipientId();
+                            } else {
+                                System.out.println("not equals");
+                                createRowItems(0, convo.getSenderName(), lastMsg);
+                                mRecipientId = convo.getSenderId();
+                            }
+
                         }
 
                         CustomListViewAdapter adapter = new CustomListViewAdapter(that,R.layout.content_homepage_list,
@@ -244,11 +263,11 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
 
         for (Map.Entry<Integer, Conversation> entry : mFriendMap.entrySet()) {
             int key = entry.getKey();
-            int recieverId = Integer.parseInt(entry.getValue().getRecipientId());
+
             String username = entry.getValue().getRecipientName();
             if(key == position) {
-//                System.out.println(recieverId);
-                extras.putInt("recieverId", recieverId);
+//                System.out.println(recipientId);
+                extras.putString("recipientId", mRecipientId);
                 extras.putString("recieverUsername",username);
             }
         }

@@ -57,7 +57,7 @@ public interface MessagingAPI {
      * @return a user
      */
     @GET("messages/{senderId}/{recieverId}")
-    Call<List<ChatMessage>> getMessages(@Path("senderId") int senderId, @Path("recieverId") int recieverId);
+    Call<List<ChatMessage>> getMessages(@Path("senderId") int senderId, @Path("recieverId") String recieverId);
 
     /**
      * Sign up/ Register user.

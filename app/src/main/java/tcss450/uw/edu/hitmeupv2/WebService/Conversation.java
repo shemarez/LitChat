@@ -12,15 +12,17 @@ public class Conversation {
     /**
      * messageId is a unique identifier for a message
      */
-    private int message_id;
+    private int messageId;
     /** The message sent */
     private String message;
     /** Date message was sent */
-    private Date created_at;
+    private Date createdAt;
     /** The user that is sending, id */
-    private int sender_id;
+    private String senderId;
     /** Recipient id. */
-    private String recipient_id;
+    private String recipientId;
+    /** Sender name */
+    private String senderName;
     /** Recipient name. */
     private String recipientName;
 
@@ -29,7 +31,7 @@ public class Conversation {
      * @return message id
      */
     public int getMessageId() {
-        return message_id;
+        return messageId;
     }
 
     /**
@@ -44,16 +46,16 @@ public class Conversation {
      * Getter.
      * @return date created at
      */
-    public Date getCreated_at() {
-        return created_at;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
     /**
      * Getter.
      * @return sender id
      */
-    public int getSenderId() {
-        return sender_id;
+    public String getSenderId() {
+        return senderId;
     }
 
     /**
@@ -61,7 +63,11 @@ public class Conversation {
      * @return recipient id
      */
     public String getRecipientId() {
-        return recipient_id;
+        return recipientId;
+    }
+
+    public String getSenderName() {
+        return senderName;
     }
 
     /**
