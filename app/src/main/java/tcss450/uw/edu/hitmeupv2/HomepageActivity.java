@@ -91,7 +91,7 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
 
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(TEST_URL)
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

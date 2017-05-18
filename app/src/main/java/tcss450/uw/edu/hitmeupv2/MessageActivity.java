@@ -49,6 +49,8 @@ import org.json.JSONObject;
  */
 
 public class MessageActivity extends AppCompatActivity  {
+    /** URL for site */
+    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
     /**
      * Use this if you want to test on a local server with emulator
      */
@@ -92,7 +94,7 @@ public class MessageActivity extends AppCompatActivity  {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         try {
-            mSocket = IO.socket(TEST_URL);
+            mSocket = IO.socket(BASE_URL);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -276,7 +278,7 @@ public class MessageActivity extends AppCompatActivity  {
 
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(TEST_URL)
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
