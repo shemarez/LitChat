@@ -1,6 +1,7 @@
 package tcss450.uw.edu.hitmeupv2;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,9 +15,16 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,7 +38,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import tcss450.uw.edu.hitmeupv2.WebService.ChatMessage;
 import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
 import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
-import tcss450.uw.edu.hitmeupv2.WebService.User;
 
 /**
  * Shema Rezanejad
@@ -58,6 +65,10 @@ public class MessageActivity extends AppCompatActivity  {
     private String mUserId;
     private Conversation mConvo;
 
+    private Socket mSocket;
+
+    private Activity mActivity;
+
     public MessageActivity() {
         chatHistory = new ArrayList<>();
     }
@@ -68,11 +79,10 @@ public class MessageActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
 
+        mActivity = this;
+
         mUserId = getIntent().getExtras().getString("userId");
         mConvo = (Conversation) getIntent().getSerializableExtra("Conversation");
-
-        System.out.println(mUserId);
-        System.out.println(mConvo);
 
         initControls();
         getChatHistory();
@@ -80,7 +90,48 @@ public class MessageActivity extends AppCompatActivity  {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        try {
+            mSocket = IO.socket(TEST_URL);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        mSocket.connect();
+        mSocket.on("updateMessagingArea", newMessage);
+
+        JSONObject userIdObj = new JSONObject();
+
+        try {
+            userIdObj.put("userId", mUserId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        mSocket.emit("sendUserId", userIdObj);
     }
+
+    private Emitter.Listener newMessage = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String message;
+                    try {
+                        message = data.getString("message");
+                    } catch (JSONException e) {
+                        return;
+                    }
+
+                    ChatMessage chatMessage = new ChatMessage();
+                    chatMessage.setMessage(message);
+                    // add the message to view
+                    displayMessage(chatMessage);
+                }
+            });
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -250,8 +301,6 @@ public class MessageActivity extends AppCompatActivity  {
                     for (int i = 0; i < chatHistory.size(); i++) {
 
                         ChatMessage msg = chatHistory.get(i);
-                        System.out.println("ChatMessage:");
-                        System.out.println(msg.getSenderId());
 
                         if (mUserId.equals(msg.getSenderId())) {
                             msg.setMe(true);
@@ -292,23 +341,42 @@ public class MessageActivity extends AppCompatActivity  {
         //More setup
         MessagingAPI api = retrofit.create(MessagingAPI.class);
 
-        Call<List<User>> call = api.sendMessage(message, mUserId, recipientId);
-        call.enqueue(new Callback<List<User>>() {
-            @Override
-            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                System.out.println(response);
-                if (response.isSuccessful()) {
-                    System.out.println("here");
+//        Call<List<User>> call = api.sendMessage(message, mUserId, recipientId);
+//
+//        call.enqueue(new Callback<List<User>>() {
+//            @Override
+//            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+//                System.out.println(response);
+//                if (response.isSuccessful()) {
+//                    System.out.println("here");
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<User>> call, Throwable t) {
+//                System.out.println("fail");
+//                t.printStackTrace();
+//            }
+//        });
 
-                }
-            }
+        JSONObject messageObj = new JSONObject();
+        try {
+            messageObj.put("message", message);
+            messageObj.put("userId", senderId);
+            messageObj.put("recipientId", recipientId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mSocket.emit("sendMessage", messageObj);
+    }
 
-            @Override
-            public void onFailure(Call<List<User>> call, Throwable t) {
-                System.out.println("fail");
-                t.printStackTrace();
-            }
-        });
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        mSocket.disconnect();
+        //mSocket.off("new message", onNewMessage);
     }
 }
 
