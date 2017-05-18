@@ -61,6 +61,14 @@ public interface MessagingAPI {
     Call<List<ChatMessage>> getMessages(@Path("userId") String userId, @Path("otherUserId") String otherUserId);
 
     /**
+     * Get all messages
+     * @param userId users id is the logged in user id
+     * @return a user
+     */
+    @GET("getUserInfo/{userId}")
+    Call<List<User>> getUserInfo(@Path("userId") String userId);
+
+    /**
      * Sign up/ Register user.
      * @param message the message text
      * @param senderId the sender message id

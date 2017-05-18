@@ -43,7 +43,7 @@ public class MessageActivity extends AppCompatActivity  {
     /**
      * Use this if you want to test on a local server with emulator
      */
-    private static final String TEST_URL = "http://10.0.2.2:8888/";
+    private static final String TEST_URL = "http://10.16.15.209:8888/";
     /** String from edit text that sender is writing. */
     private EditText messageET;
     /** Container for all messages. */
@@ -61,6 +61,7 @@ public class MessageActivity extends AppCompatActivity  {
     public MessageActivity() {
         chatHistory = new ArrayList<>();
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -214,8 +215,6 @@ public class MessageActivity extends AppCompatActivity  {
      */
     private void getChatHistory() {
         final MessageActivity that = this;
-
-
 
         //used to convert JSON to POJO (Plain old java object)
         Gson gson = new GsonBuilder().setLenient().create();
