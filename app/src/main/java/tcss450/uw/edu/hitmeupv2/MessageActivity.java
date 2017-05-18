@@ -2,7 +2,6 @@ package tcss450.uw.edu.hitmeupv2;
 
 
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -130,7 +129,7 @@ public class MessageActivity extends AppCompatActivity  {
                 }
 
                 ChatMessage chatMessage = new ChatMessage();
-                chatMessage.setId(122);//dummy
+                chatMessage.setId("122");//dummy
                 chatMessage.setMessage(messageText);
                 chatMessage.setDate(getCurrentTime());
                 chatMessage.setMe(true);
@@ -169,14 +168,14 @@ public class MessageActivity extends AppCompatActivity  {
         chatHistory = new ArrayList<ChatMessage>();
 
         ChatMessage msg = new ChatMessage();
-        msg.setId(1);
+        msg.setId("1");
         msg.setMe(false);
         msg.setMessage("Welcome to LitChat");
 //        msg.setDate(DateFormat.getDateTimeInstance().format(new Date()));
         msg.setDate(getCurrentTime());
         chatHistory.add(msg);
         ChatMessage msg1 = new ChatMessage();
-        msg1.setId(2);
+        msg1.setId("2");
         msg1.setMe(false);
         msg1.setMessage("As of right now, frontend messaging does not work. However " +
                 "the frontend display for messaging works! Please try typing and " +
@@ -243,15 +242,17 @@ public class MessageActivity extends AppCompatActivity  {
                     System.out.println("here");
                     chatHistory = response.body();
 
-                    for(int i=0; i < chatHistory.size(); i++) {
+                    for (int i = 0; i < chatHistory.size(); i++) {
 
                         ChatMessage msg = chatHistory.get(i);
-                        if (mUserId.equals(mConvo.getSenderId())) {
+                        System.out.println("ChatMessage:");
+                        System.out.println(msg.getSenderId());
+
+                        if (mUserId.equals(msg.getSenderId())) {
                             msg.setMe(true);
                         } else {
                             msg.setMe(false);
                         }
-
 
                         String message = msg.getMessage();
                         // TODO: 5/16/2017  fix datetime format

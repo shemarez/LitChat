@@ -6,32 +6,34 @@ package tcss450.uw.edu.hitmeupv2.WebService;
 
 public class ChatMessage {
     /** The message id. */
-    private int message_id;
+    private String messageId;
     /** Checking if the user is the sender. */
-    private boolean isMe;
+    private boolean isMe; // Database doesn't set this, we set it ourselves in MessageActivity
     /** Storing the message. */
     private String message;
     /** Storing the user id. */
-    private int user_id;
+    private String senderName;
+    private String recipientName;
+    private String senderId;
     /** Storing the recipient id. */
-    private int recipient_id;
+    private String recipientId;
     /** Storing the date and time of message. */
-    private String created_at;
+    private String createdAt;
 
     /**
      * Getter.
      * @return message id
      */
-    public int getId() {
-        return message_id;
+    public String getId() {
+        return messageId;
     }
 
     /**
      * Setter.
      * @param id message id
      */
-    public void setId(int id) {
-        this.message_id = id;
+    public void setId(String id) {
+        this.messageId = id;
     }
 
     /**
@@ -70,45 +72,45 @@ public class ChatMessage {
      * Getter.
      * @return get user id
      */
-    public long getUserId() {
-        return user_id;
+    public String getSenderId() {
+        return senderId;
     }
 
     /** Setter
      *
-     * @param userId set the new user id
+     * @param senderId set the new user id
      */
-    public void setUserId(int userId) {
-        this.user_id = userId;
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
     }
     /** Date
      *
      * @return  a date
      */
     public String getDate() {
-        return created_at;
+        return createdAt;
     }
     /** Setter
      *
      * @param dateTime set the new date
      */
     public void setDate(String dateTime) {
-        this.created_at = dateTime;
+        this.createdAt = dateTime;
     }
 
     /**
      * Setter
      * @return the recipient id
      */
-    public int getRecieverId() {
-        return recipient_id;
+    public String getRecipientId() {
+        return recipientId;
     }
 
-    /**
-     * Setter
-     * @param recieverId the id
-     */
-    public void setRecieverId(int recieverId) {
-        this.recipient_id = recieverId;
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public String getRecipientName() {
+        return  recipientName;
     }
 }
