@@ -98,7 +98,7 @@ public class MessageActivity extends AppCompatActivity  {
         }
 
         mSocket.connect();
-        mSocket.on("updateMessagingArea", newMessage);
+        mSocket.on("updateMessageArea", newMessage);
 
         JSONObject userIdObj = new JSONObject();
 
@@ -121,6 +121,7 @@ public class MessageActivity extends AppCompatActivity  {
                     String message;
                     try {
                         message = data.getString("message");
+                        Log.i("This is the message", message);
                     } catch (JSONException e) {
                         return;
                     }
