@@ -23,6 +23,9 @@ public class User {
      */
     private String userId;
 
+    /** store the path of the profile picture for a user. */
+    private String profileImgPath;
+
     /**
      * Getter
      * @return username
@@ -55,5 +58,10 @@ public class User {
         return userId;
     }
 
+    /**
+     * Return the path of the image
+     * @return profileImgPath
+     */
+    public String getProfileImgPath() { return profileImgPath; }
 }
 

@@ -16,8 +16,13 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
@@ -33,13 +38,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import tcss450.uw.edu.hitmeupv2.WebService.ChatMessage;
 import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
 import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
-import tcss450.uw.edu.hitmeupv2.WebService.User;
-
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Shema Rezanejad
@@ -54,7 +52,7 @@ public class MessageActivity extends AppCompatActivity  {
     /**
      * Use this if you want to test on a local server with emulator
      */
-    private static final String TEST_URL = "http://10.0.2.2:8888/";
+    private static final String TEST_URL = "http://10.16.15.209:8888/";
     /** String from edit text that sender is writing. */
     private EditText messageET;
     /** Container for all messages. */
@@ -76,6 +74,7 @@ public class MessageActivity extends AppCompatActivity  {
     public MessageActivity() {
         chatHistory = new ArrayList<>();
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -270,8 +269,6 @@ public class MessageActivity extends AppCompatActivity  {
      */
     private void getChatHistory() {
         final MessageActivity that = this;
-
-
 
         //used to convert JSON to POJO (Plain old java object)
         Gson gson = new GsonBuilder().setLenient().create();

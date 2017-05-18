@@ -20,6 +20,7 @@
             android:fitsSystemWindows="true"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:contentScrim="?attr/colorPrimary"
+            app:collapsedTitleTextAppearance="@color/textColorHint"
             app:title="first last">
 
             <ImageView
