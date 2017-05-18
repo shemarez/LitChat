@@ -118,11 +118,6 @@ public class LoginActivity extends AppCompatActivity {
                 public void onResponse(Call<List<User>> call, Response<List<User>> response) {
                     if (response.isSuccessful()) {
                         User user = response.body().get(0);
-                        System.out.println(user.getUsername());
-                        System.out.println(user.getPassword());
-                        System.out.println(user.getMessage());
-                        System.out.println(user.getUserId());
-
                         String userId = user.getUserId();
 
                         intent.putExtra("userId", userId);

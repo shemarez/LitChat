@@ -28,6 +28,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import tcss450.uw.edu.hitmeupv2.WebService.ChatMessage;
+import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
 import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
 
 /**
@@ -55,35 +56,24 @@ public class MessageActivity extends AppCompatActivity  {
     /** History of conversations. */
     private List<ChatMessage> chatHistory;
     /** Stores the current users id */
-    private int mSenderId;
-    /** Stores the current users id */
-    private String mRecipientId;
+    private String mUserId;
+    private Conversation mConvo;
 
     public MessageActivity() {
         chatHistory = new ArrayList<>();
-
-
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
-        /** FOR DEBUGGING PURPOSES REMOVE LATER */
 
-        final View parentLayout = findViewById(R.id.messageEdit);
-        final Snackbar snackbar = Snackbar
-                .make(parentLayout, "", Snackbar.LENGTH_LONG);
+        mUserId = getIntent().getExtras().getString("userId");
+        mConvo = (Conversation) getIntent().getSerializableExtra("Conversation");
 
-        snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
-        /** FOR DEBUGGING PURPOSES REMOVE LATER */
-        mSenderId = getIntent().getExtras().getInt("senderId");
-        mRecipientId = getIntent().getExtras().getString("recipientId");
-        //Call the getConversations method from the interface that we created
-        snackbar.setText("senderId: " + mSenderId + " recipientId: " + mRecipientId);
+        System.out.println(mUserId);
+        System.out.println(mConvo);
 
-        snackbar.show();
         initControls();
         getChatHistory();
         //  must update once communicating with server
@@ -129,8 +119,7 @@ public class MessageActivity extends AppCompatActivity  {
 
         RelativeLayout container = (RelativeLayout) findViewById(R.id.container);
 
-
-       // loadDummyHistory();
+        // loadDummyHistory();
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,8 +140,6 @@ public class MessageActivity extends AppCompatActivity  {
                 displayMessage(chatMessage);
             }
         });
-
-
     }
 
     /**
@@ -198,11 +185,10 @@ public class MessageActivity extends AppCompatActivity  {
         msg1.setDate(getCurrentTime());
         chatHistory.add(msg1);
 
-        for(int i=0; i < chatHistory.size(); i++) {
+        for (int i=0; i < chatHistory.size(); i++) {
             ChatMessage message = chatHistory.get(i);
             displayMessage(message);
         }
-
     }
 
 
@@ -217,14 +203,14 @@ public class MessageActivity extends AppCompatActivity  {
 
     }
 
-
-
     /**
      * Getter for chat history.
      * @return list of conversation
      */
     private void getChatHistory() {
         final MessageActivity that = this;
+
+
 
         //used to convert JSON to POJO (Plain old java object)
         Gson gson = new GsonBuilder().setLenient().create();
@@ -238,7 +224,17 @@ public class MessageActivity extends AppCompatActivity  {
         //More setup
         MessagingAPI api = retrofit.create(MessagingAPI.class);
 
-        Call<List<ChatMessage>> call = api.getMessages(mSenderId, mRecipientId);
+        String otherUserId;
+        if (mUserId.equals(mConvo.getSenderId())) {
+            otherUserId = mConvo.getRecipientId();
+        } else {
+            otherUserId = mConvo.getSenderId();
+        }
+
+        System.out.println("mUserId: " + mUserId);
+        System.out.println("otherUserId: " + otherUserId);
+
+        Call<List<ChatMessage>> call = api.getMessages(mUserId, otherUserId);
         call.enqueue(new Callback<List<ChatMessage>>() {
             @Override
             public void onResponse(Call<List<ChatMessage>> call, Response<List<ChatMessage>> response) {
@@ -250,7 +246,12 @@ public class MessageActivity extends AppCompatActivity  {
                     for(int i=0; i < chatHistory.size(); i++) {
 
                         ChatMessage msg = chatHistory.get(i);
-                        msg.setMe(false);
+                        if (mUserId.equals(mConvo.getSenderId())) {
+                            msg.setMe(true);
+                        } else {
+                            msg.setMe(false);
+                        }
+
 
                         String message = msg.getMessage();
                         // TODO: 5/16/2017  fix datetime format
@@ -265,17 +266,12 @@ public class MessageActivity extends AppCompatActivity  {
                 t.printStackTrace();
             }
         });
-
     }
 
 
     public void postMessage(ChatMessage theMessage) {
 
     }
-
-
-
-
 }
 
 

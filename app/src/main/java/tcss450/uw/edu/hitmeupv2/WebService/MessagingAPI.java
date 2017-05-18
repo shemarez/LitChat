@@ -53,11 +53,12 @@ public interface MessagingAPI {
     Call<List<User>> getContacts(@Path("userId") String userId);
     /**
      * Get all messages
-     * @param senderId users id
+     * @param userId users id is the logged in user id
+     * @param otherUserId is the other user's id that is part of the message
      * @return a user
      */
-    @GET("messages/{senderId}/{recieverId}")
-    Call<List<ChatMessage>> getMessages(@Path("senderId") int senderId, @Path("recieverId") String recieverId);
+    @GET("messages/{userId}/{otherUserId}")
+    Call<List<ChatMessage>> getMessages(@Path("userId") String userId, @Path("otherUserId") String otherUserId);
 
     /**
      * Sign up/ Register user.

@@ -1,5 +1,6 @@
 package tcss450.uw.edu.hitmeupv2.WebService;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -8,7 +9,7 @@ import java.util.Date;
  *
  * Used to read conversation information from the web service.
  */
-public class Conversation {
+public class Conversation implements Serializable {
     /**
      * messageId is a unique identifier for a message
      */

@@ -52,10 +52,6 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
     private HashMap<Integer, Conversation> mFriendMap = new HashMap<Integer, Conversation> ();
     /** Storing user id. */
     private  String mUserId;
-    /** Storing user id. */
-    private  int mSenderId;
-
-    private String mRecipientId;
 
 
     @Override
@@ -68,17 +64,15 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         final HomepageActivity  that = this;
         //Call the getConversations method from the interface that we created
         mUserId = getIntent().getExtras().getString("userId");
-        mSenderId = Integer.parseInt(mUserId);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(that, FriendsActivity.class);
                 intent.putExtra("userId", mUserId);
                 startActivity(intent);
-
-//
             }
         });
 
@@ -104,76 +98,54 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         //More setup
         MessagingAPI api = retrofit.create(MessagingAPI.class);
 
+        Call<List<Conversation>> call = api.getConversations(mUserId);
 
-        // This activity should remember the current mUserId, so when you press back, it doesnt crash
-//        if(getUserId != null) {
-            System.out.println("mUserId: " + mUserId);
-            Call<List<Conversation>> call = api.getConversations(mUserId);
+        call.enqueue(new Callback<List<Conversation>>() {
 
-            call.enqueue(new Callback<List<Conversation>>() {
+            @Override
+            public void onResponse(Call<List<Conversation>> call, Response<List<Conversation>> response) {
+                System.out.println(response);
+                if (response.isSuccessful()) {
+                    List<Conversation> convos = response.body();
+                    for (int i = 0; i < convos.size(); i++) {
+                        Conversation convo = convos.get(i);
+                        mFriendMap.put(i, convo);
+                        String lastMsg = convos.get(i).getMessage();
+                        String senderId = convo.getSenderId();
 
-                @Override
-                public void onResponse(Call<List<Conversation>> call, Response<List<Conversation>> response) {
-                    System.out.println(response);
-                    if (response.isSuccessful()) {
-                        List<Conversation> convos = response.body();
-                        for (int i = 0; i < convos.size(); i++) {
-                            Conversation convo = convos.get(i);
-                            String friendName = convo.getRecipientName();
-                            String friendId = convos.get(i).getRecipientId();
-                            String lastMsg = convos.get(i).getMessage();
-                            System.out.println("Message id " + convo.getMessageId());
-                            System.out.println("Recipient id: " + convos.get(i).getRecipientId());
-                            System.out.println("recipient name" + convo.getRecipientName());
-                            System.out.println("sender id " + convo.getSenderId());
-                            System.out.println("sender name: " + convo.getSenderName());
-                            System.out.println("lastmsg " + lastMsg);
-                            System.out.println("created at" + convo.getCreatedAt());
+                        // When creating the friend name label for the row items
+                        // we want to display the "opposite name", so if the
+                        // logged in user is the sender of the conversation,
+                        // display the recipients name for the label, but if
+                        // the logged in user is the recipients name, display
+                        // the sender name for the label
+                        if (mUserId.equals(senderId)) {
+                            createRowItems(0, convo.getRecipientName(), lastMsg);
 
-
-                            mFriendMap.put(i, convo);
-
-                            System.out.println(mUserId);
-                            System.out.println(convo.getSenderId());
-
-                            String senderId = convo.getSenderId();
-
-
-                            if (mUserId.equals(senderId)) {
-                                System.out.println("equals");
-                                createRowItems(0, convo.getRecipientName(), lastMsg);
-                                mRecipientId = convo.getRecipientId();
-                            } else {
-                                System.out.println("not equals");
-                                createRowItems(0, convo.getSenderName(), lastMsg);
-                                mRecipientId = convo.getSenderId();
-                            }
-
+                        } else {
+                            createRowItems(0, convo.getSenderName(), lastMsg);
                         }
-
-                        CustomListViewAdapter adapter = new CustomListViewAdapter(that,R.layout.content_homepage_list,
-                                mFriendList, true);
-
-                        adapter.setmTitle(R.id.friendLabel);
-                        adapter.setmSubtitleTitle(R.id.lastConvo);
-
-                        ListView list = (ListView) findViewById(R.id.conversationsList);
-                        list.setAdapter(adapter);
-                        list.setOnItemClickListener(that);
-
                     }
+
+                    CustomListViewAdapter adapter = new CustomListViewAdapter(that,R.layout.content_homepage_list,
+                            mFriendList, true);
+
+                    adapter.setmTitle(R.id.friendLabel);
+                    adapter.setmSubtitleTitle(R.id.lastConvo);
+
+                    ListView list = (ListView) findViewById(R.id.conversationsList);
+                    list.setAdapter(adapter);
+                    list.setOnItemClickListener(that);
+
                 }
+            }
 
-                @Override
-                public void onFailure(Call<List<Conversation>> call, Throwable t) {
-                    System.out.println("fail");
-                    t.printStackTrace();
-                }
-            });
-//        }
-
-
-
+            @Override
+            public void onFailure(Call<List<Conversation>> call, Throwable t) {
+                System.out.println("fail");
+                t.printStackTrace();
+            }
+        });
     }
 
     /**
@@ -258,23 +230,20 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(this, MessageActivity.class);
         Bundle extras = new Bundle(); // for passing multiple values
-        extras.putInt("senderId", mSenderId);
-//        extras.putInt("recieverId", 242);
 
         for (Map.Entry<Integer, Conversation> entry : mFriendMap.entrySet()) {
             int key = entry.getKey();
 
             String username = entry.getValue().getRecipientName();
-            if(key == position) {
-//                System.out.println(recipientId);
-                extras.putString("recipientId", mRecipientId);
-                extras.putString("recieverUsername",username);
+            if (key == position) {
+                System.out.println(key);
+                System.out.println(entry.getValue());
+                intent.putExtra("userId", mUserId);
+                intent.putExtra("Conversation", entry.getValue());
             }
         }
 
         intent.putExtras(extras);
-//        intent.putExtra("senderId", mUserId);
         startActivity(intent);
-
     }
 }
