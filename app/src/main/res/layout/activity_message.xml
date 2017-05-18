@@ -45,6 +45,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/messagesContainer"
+            android:onClick="postMessage"
             android:tint="@color/colorAccent"
             app:srcCompat="@drawable/ic_menu_send" />
 

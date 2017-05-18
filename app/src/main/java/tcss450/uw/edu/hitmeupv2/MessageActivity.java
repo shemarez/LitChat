@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +30,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import tcss450.uw.edu.hitmeupv2.WebService.ChatMessage;
 import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
 import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
+import tcss450.uw.edu.hitmeupv2.WebService.User;
 
 /**
  * Shema Rezanejad
@@ -38,8 +40,6 @@ import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
  */
 
 public class MessageActivity extends AppCompatActivity  {
-
-
     /**
      * Use this if you want to test on a local server with emulator
      */
@@ -129,14 +129,20 @@ public class MessageActivity extends AppCompatActivity  {
                 }
 
                 ChatMessage chatMessage = new ChatMessage();
-                chatMessage.setId("122");//dummy
                 chatMessage.setMessage(messageText);
-                chatMessage.setDate(getCurrentTime());
                 chatMessage.setMe(true);
 
                 messageET.setText("");
 
                 displayMessage(chatMessage);
+
+                String otherUserId;
+                if (mUserId.equals(mConvo.getSenderId())) {
+                    otherUserId = mConvo.getRecipientId();
+                } else {
+                    otherUserId = mConvo.getSenderId();
+                }
+                postMessage(messageText, mUserId, otherUserId);
             }
         });
     }
@@ -270,8 +276,40 @@ public class MessageActivity extends AppCompatActivity  {
     }
 
 
-    public void postMessage(ChatMessage theMessage) {
+    public void postMessage(String message, String senderId, String recipientId) {
+        Log.i("postMessage", message);
+        Log.i("postMessage", senderId);
+        Log.i("postMessage", recipientId);
 
+        //used to convert JSON to POJO (Plain old java object)
+        Gson gson = new GsonBuilder().setLenient().create();
+
+        //Set up retrofit to make our API call
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(TEST_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        //More setup
+        MessagingAPI api = retrofit.create(MessagingAPI.class);
+
+        Call<List<User>> call = api.sendMessage(message, mUserId, recipientId);
+        call.enqueue(new Callback<List<User>>() {
+            @Override
+            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                System.out.println(response);
+                if (response.isSuccessful()) {
+                    System.out.println("here");
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<User>> call, Throwable t) {
+                System.out.println("fail");
+                t.printStackTrace();
+            }
+        });
     }
 }
 

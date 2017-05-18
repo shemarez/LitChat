@@ -62,13 +62,13 @@ public interface MessagingAPI {
 
     /**
      * Sign up/ Register user.
-     * @param username the username
-     * @param password the password
-     * @return user
+     * @param message the message text
+     * @param senderId the sender message id
+     * @param recipientId the recipient of the message id
      */
     @FormUrlEncoded
-    @POST("send-message/{senderId}/{reciverId}")
-    Call<List<User>> sendMessages(@Field("username") String username, @Field("password") String password);
+    @POST("send-message/{senderId}/{recipientId}")
+    Call<List<User>> sendMessage(@Field("message") String message, @Path("senderId") String senderId, @Path("recipientId") String recipientId);
 
 
 
