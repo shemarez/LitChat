@@ -66,7 +66,7 @@ public class MessageActivity extends AppCompatActivity  {
     /** Stores the current users id */
     private String mUserId;
     private Conversation mConvo;
-
+    private ActionBar mActionBar;
     private Socket mSocket;
 
     private Activity mActivity;
@@ -89,8 +89,8 @@ public class MessageActivity extends AppCompatActivity  {
         initControls();
         getChatHistory();
         //  must update once communicating with server
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        mActionBar = getSupportActionBar();
+        mActionBar.setDisplayHomeAsUpEnabled(true);
 
         try {
             mSocket = IO.socket(BASE_URL);
@@ -168,10 +168,12 @@ public class MessageActivity extends AppCompatActivity  {
         messageET = (EditText) findViewById(R.id.messageEdit);
         sendBtn = (ImageButton) findViewById(R.id.chatSendButton);
 
+
         adapter = new MessageAdapter(MessageActivity.this, new ArrayList<ChatMessage>());
         messagesContainer.setAdapter(adapter);
 
         RelativeLayout container = (RelativeLayout) findViewById(R.id.container);
+//        System.out.println(dots.getDotsCount());
 
         // loadDummyHistory();
 
@@ -200,6 +202,8 @@ public class MessageActivity extends AppCompatActivity  {
                 postMessage(messageText, mUserId, otherUserId);
             }
         });
+
+
     }
 
     /**
@@ -304,17 +308,33 @@ public class MessageActivity extends AppCompatActivity  {
                     for (int i = 0; i < chatHistory.size(); i++) {
 
                         ChatMessage msg = chatHistory.get(i);
+                        String recipientUser = msg.getRecipientName();
 
                         if (mUserId.equals(msg.getSenderId())) {
                             msg.setMe(true);
                         } else {
                             msg.setMe(false);
-                        }
 
+                        }
+                        if(recipientUser != null) {
+                            mActionBar.setTitle(recipientUser);
+                        }
                         String message = msg.getMessage();
                         // TODO: 5/16/2017  fix datetime format
                         displayMessage(msg);
+
+
                     }
+
+                    ChatMessage c = new ChatMessage();
+                    c.setRecipientTyping(true);
+                    c.setMessage("dots");
+                    c.setDate(null);
+                    c.setMe(false);
+
+                    chatHistory.add(c);
+
+                    displayMessage(c);
                 }
             }
 
@@ -337,7 +357,7 @@ public class MessageActivity extends AppCompatActivity  {
 
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(TEST_URL)
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

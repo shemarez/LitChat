@@ -5,6 +5,8 @@
     xmlns:emojicon="http://schemas.android.com/tools"
     android:orientation="vertical">
 
+
+
     <RelativeLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
@@ -37,6 +39,8 @@
             android:divider="@null"
             android:listSelector="@android:color/transparent"
             android:transcriptMode="alwaysScroll" />
+
+
 
         <ImageButton
             android:id="@+id/chatSendButton"
