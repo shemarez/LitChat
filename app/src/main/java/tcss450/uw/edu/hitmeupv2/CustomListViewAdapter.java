@@ -6,11 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import tcss450.uw.edu.hitmeupv2.ListItem.RowItem;
 
 /**
@@ -49,6 +51,17 @@ public class CustomListViewAdapter extends ArrayAdapter<RowItem> {
 
     private boolean hasSubtitle;
     /**
+     * checks if it needs a profile image.
+     */
+
+    private boolean hasProfilePic = false;
+
+    /**
+     * For setting image resource.
+     */
+    private Picasso.Builder builder;
+
+    /**
      * Constructor
      * @param context the activity
      * @param resourceId the resource id
@@ -60,18 +73,40 @@ public class CustomListViewAdapter extends ArrayAdapter<RowItem> {
         this.mContext = context;
         this.mLayout = resourceId;
         this.hasSubtitle = hasSubtitle;
+        this.builder = new Picasso.Builder(context);
     }
 
+    /**
+     * Sets the title of the rowitem.
+     * @param title the resource id
+     */
     public void setmTitle(int title) {
         this.mTitle = title;
     }
+
+    /**
+     * Sets the subtitle of the rowitem.
+     * @param subTitle the resource id
+     */
     public void setmSubtitleTitle(int subTitle) {
         this.mSubtitle = subTitle;
     }
 
+    /**
+     * Sets the image resource id of the rowitem
+     * @param imgView the resource id
+     */
+    public void setmImg(int imgView) { this.mImg = imgView;  };
+
+    /**
+     * Sets a flag to see if the rowitem needs an image
+     * @param hasProfilePic a true/false value
+     */
+    public void setHasProfilePic(boolean hasProfilePic) { this.hasProfilePic = hasProfilePic; }
+
     /*private view holder class*/
     private class ViewHolder {
-        ImageView imageView;
+        CircleImageView imageView;
         TextView txtTitle;
         TextView txtDesc;
     }
@@ -96,9 +131,10 @@ public class CustomListViewAdapter extends ArrayAdapter<RowItem> {
             if(this.hasSubtitle) {
                 holder.txtDesc = (TextView) convertView.findViewById(mSubtitle);
                 holder.txtTitle = (TextView) convertView.findViewById(mTitle);
-
+                holder.imageView = (CircleImageView) convertView.findViewById(mImg);
             } else {
                 holder.txtTitle = (TextView) convertView.findViewById(mTitle);
+                holder.imageView = (CircleImageView) convertView.findViewById(mImg);
 
             }
 
@@ -109,12 +145,21 @@ public class CustomListViewAdapter extends ArrayAdapter<RowItem> {
         if(this.hasSubtitle) {
             holder.txtDesc.setText(rowItem.getmSubItem());
             holder.txtTitle.setText(rowItem.getmTitle());
+            if(rowItem.getImgPath() != null) {
+                builder.build().load(rowItem.getmImgPath()).placeholder(R.drawable.avatar).into(holder.imageView);
+            }
+
 
         } else {
             holder.txtTitle.setText(rowItem.getmTitle());
+
+            if(rowItem.getImgPath() != null) {
+                builder.build().load(rowItem.getmImgPath()).placeholder(R.drawable.avatar).into(holder.imageView);
+            }
+
         }
 
-//        holder.imageView.setImageResource(rowItem.getmImgId());
+
 
         return convertView;
     }

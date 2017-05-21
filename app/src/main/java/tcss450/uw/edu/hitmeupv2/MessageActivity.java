@@ -91,7 +91,7 @@ public class MessageActivity extends AppCompatActivity  {
         //  must update once communicating with server
         mActionBar = getSupportActionBar();
         mActionBar.setDisplayHomeAsUpEnabled(true);
-
+//        setSupportActionBar(mActionBar);
         try {
             mSocket = IO.socket(BASE_URL);
         } catch (URISyntaxException e) {

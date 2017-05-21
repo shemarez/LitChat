@@ -26,6 +26,13 @@ public class Conversation implements Serializable {
     private String senderName;
     /** Recipient name. */
     private String recipientName;
+    /** Profile Image Path name, for getting profile pic.
+     * Only for the sender of the message. */
+    private String senderProfileImgPath;
+    /** Profile Image Path name, for getting profile pic.
+     * Only for the sender of the message. */
+    private String recipientProfileImgPath;
+
 
     /**
      * Getter.
@@ -67,6 +74,10 @@ public class Conversation implements Serializable {
         return recipientId;
     }
 
+    /**
+     * Getter for the sender name (current user in app)
+     * @return senderName
+     */
     public String getSenderName() {
         return senderName;
     }
@@ -78,4 +89,20 @@ public class Conversation implements Serializable {
     public String getRecipientName() {
         return recipientName;
     }
+
+    /**
+     * Return the path of the image..
+     * @return  profile image path
+     */
+    public String getSenderProfileImgPath() {
+        return senderProfileImgPath;
+    }
+    /**
+     * Return the path of the image..
+     * @return  profile image path
+     */
+    public String getRecipientProfileImgPath() {
+        return recipientProfileImgPath;
+    }
+
 }

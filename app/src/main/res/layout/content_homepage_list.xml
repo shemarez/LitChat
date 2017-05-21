@@ -7,7 +7,7 @@
         android:id="@+id/profile_pic"
         android:layout_width="75dp"
         android:layout_height="75dp"
-        android:src="@mipmap/androidicon"
+        android:src="@drawable/avatar"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
         android:layout_centerVertical="true"

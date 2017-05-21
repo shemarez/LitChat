@@ -142,6 +142,7 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
 
     /**
      * Private helper which handles the GET of the profile image path.
+     * @param toolbar
      */
     private void retrieveProfileImg(final CollapsingToolbarLayout toolbar) {
         final ProfileActivity that = this;

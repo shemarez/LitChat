@@ -9,9 +9,9 @@ package tcss450.uw.edu.hitmeupv2.ListItem;
 
 public class RowItem {
     /**
-     * Profile pic id.
+     * Profile pic path
      */
-    private int mImgId;
+    private String mImgPath;
     /**
      * Name of friend.
      */
@@ -27,8 +27,8 @@ public class RowItem {
      * @param title friend name
      * @param subItem subItem of every item
      */
-    public RowItem(int imgId, String title, String subItem) {
-        this.mImgId = imgId;
+    public RowItem(String imgId, String title, String subItem) {
+        this.mImgPath = imgId;
         this.mTitle = title;
         this.mSubItem = subItem;
     }
@@ -47,16 +47,16 @@ public class RowItem {
      * Getter.
      * @return imgid
      */
-    public int getmImgId() {
-        return mImgId;
+    public String getmImgPath() {
+        return mImgPath;
     }
 
     /**
      * Setter.
-     * @param mImgId set img id
+     * @param mImgPath set img id
      */
-    public void setmImgId(int mImgId) {
-        this.mImgId = mImgId;
+    public void setmImgPath(String mImgPath) {
+        this.mImgPath = mImgPath;
     }
 
     /**
@@ -95,8 +95,8 @@ public class RowItem {
      * Getter.
      * @return img id
      */
-    public int getImgId() {
-        return mImgId;
+    public String getImgPath() {
+        return mImgPath;
 
 
     }
