@@ -21,6 +21,7 @@ import com.github.nkzawa.socketio.client.Socket;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,7 +53,7 @@ public class MessageActivity extends AppCompatActivity  {
     /**
      * Use this if you want to test on a local server with emulator
      */
-    private static final String TEST_URL = "http://10.16.15.209:8888/";
+    private static final String TEST_URL = "http://10.0.2.2:8888/";
     /** String from edit text that sender is writing. */
     private EditText messageET;
     /** Container for all messages. */
@@ -63,8 +64,14 @@ public class MessageActivity extends AppCompatActivity  {
     private MessageAdapter adapter;
     /** History of conversations. */
     private List<ChatMessage> chatHistory;
-    /** Stores the current users id */
+    /** Stores the current users id (i.e. the sender) */
     private String mUserId;
+
+    /** The other user that this user is talking to */
+    private String otherUserId;
+
+    private boolean otherUserIsOnline;
+
     private Conversation mConvo;
 
     private Socket mSocket;
@@ -75,7 +82,6 @@ public class MessageActivity extends AppCompatActivity  {
         chatHistory = new ArrayList<>();
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,26 +91,32 @@ public class MessageActivity extends AppCompatActivity  {
 
         mUserId = getIntent().getExtras().getString("userId");
         mConvo = (Conversation) getIntent().getSerializableExtra("Conversation");
+        otherUserIsOnline = false;
 
         initControls();
         getChatHistory();
+
         //  must update once communicating with server
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         try {
-            mSocket = IO.socket(BASE_URL);
+            mSocket = IO.socket(TEST_URL);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
 
         mSocket.connect();
+        /* Listen for new messages */
         mSocket.on("updateMessageArea", newMessage);
+        /* Listen for current sockets connected */
+        mSocket.on("usersOnline", usersOnline);
 
         JSONObject userIdObj = new JSONObject();
 
         try {
             userIdObj.put("userId", mUserId);
+            userIdObj.put("otherUserId", otherUserId);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -124,13 +136,46 @@ public class MessageActivity extends AppCompatActivity  {
                         message = data.getString("message");
                         Log.i("This is the message", message);
                     } catch (JSONException e) {
+                        e.printStackTrace();
                         return;
                     }
 
                     ChatMessage chatMessage = new ChatMessage();
                     chatMessage.setMessage(message);
+                    chatMessage.setDate(getCurrentTime());
                     // add the message to view
                     displayMessage(chatMessage);
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener usersOnline = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONArray onlineUsers = (JSONArray) args[0];
+                    Log.d("online users", onlineUsers.toString());
+
+                    // Iterate through onlineUsers
+                    for (int i = 0; i < onlineUsers.length(); i++) {
+                        try {
+                            JSONObject userIdObj = (JSONObject) onlineUsers.get(i);
+                            String userId = userIdObj.getString("userId");
+                            Log.d("online user", userId);
+
+                            if (userId.equals(otherUserId)) {
+                                otherUserIsOnline = true;
+                                Log.i("Sockets", "Other user Is online");
+                                //TODO: update the front end online indicator here
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             });
         }
@@ -275,14 +320,13 @@ public class MessageActivity extends AppCompatActivity  {
 
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(TEST_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
         //More setup
         MessagingAPI api = retrofit.create(MessagingAPI.class);
 
-        String otherUserId;
         if (mUserId.equals(mConvo.getSenderId())) {
             otherUserId = mConvo.getRecipientId();
         } else {
@@ -298,7 +342,6 @@ public class MessageActivity extends AppCompatActivity  {
             public void onResponse(Call<List<ChatMessage>> call, Response<List<ChatMessage>> response) {
                 System.out.println(response);
                 if (response.isSuccessful()) {
-                    System.out.println("here");
                     chatHistory = response.body();
 
                     for (int i = 0; i < chatHistory.size(); i++) {
@@ -378,8 +421,14 @@ public class MessageActivity extends AppCompatActivity  {
     public void onDestroy() {
         super.onDestroy();
 
+        JSONObject userIdObj = new JSONObject();
+        try {
+            userIdObj.put("userId", mUserId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mSocket.emit("userWentOffline", userIdObj);
         mSocket.disconnect();
-        //mSocket.off("new message", onNewMessage);
     }
 }
 

@@ -104,7 +104,7 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
 
             @Override
             public void onResponse(Call<List<Conversation>> call, Response<List<Conversation>> response) {
-                System.out.println(response);
+
                 if (response.isSuccessful()) {
                     List<Conversation> convos = response.body();
                     for (int i = 0; i < convos.size(); i++) {
@@ -113,6 +113,8 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                         String lastMsg = convos.get(i).getMessage();
                         String senderId = convo.getSenderId();
 
+
+
                         // When creating the friend name label for the row items
                         // we want to display the "opposite name", so if the
                         // logged in user is the sender of the conversation,
@@ -120,9 +122,11 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                         // the logged in user is the recipients name, display
                         // the sender name for the label
                         if (mUserId.equals(senderId)) {
+
                             createRowItems(0, convo.getRecipientName(), lastMsg);
 
                         } else {
+
                             createRowItems(0, convo.getSenderName(), lastMsg);
                         }
                     }
@@ -236,8 +240,6 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
 
             String username = entry.getValue().getRecipientName();
             if (key == position) {
-                System.out.println(key);
-                System.out.println(entry.getValue());
                 intent.putExtra("userId", mUserId);
                 intent.putExtra("Conversation", entry.getValue());
             }
