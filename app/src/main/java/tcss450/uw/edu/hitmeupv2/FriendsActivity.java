@@ -34,11 +34,15 @@ import tcss450.uw.edu.hitmeupv2.WebService.User;
 
 public class FriendsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     /** URL of app.*/
-    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+//    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+    private static final String BASE_URL = "http://10.0.2.2:8888/";
+
     /** List of friends/contacts.*/
     private ArrayList<RowItem> mFriendList = new ArrayList<RowItem>();
     /** Stores the current users id */
     private  String mUserId;
+    /** Stores path of user profile */
+    private String mProfileImgPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +87,7 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
      * @param friendName friends name
      * @param lastConvo last message sent with friend
      */
-    private void createRowItems(int profilePic, String friendName, String lastConvo) {
+    private void createRowItems(String profilePic, String friendName, String lastConvo) {
 
         RowItem item = new RowItem(profilePic, friendName, lastConvo);
         mFriendList.add(item);
@@ -120,14 +124,25 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
                     for (int i = 0; i < friends.size(); i++) {
                         System.out.println(friends.get(i).getUsername());
                         String friend = friends.get(i).getUsername();
-//                        String lastMsg = convos.get(i).getMessage();
-                        createRowItems(0, friend, null);
+                        String imgPath = friends.get(i).getProfileImgPath();
+
+                        if(imgPath != null) {
+                            imgPath = BASE_URL +  "public/" + imgPath;
+                            System.out.println(imgPath);
+                            createRowItems(imgPath, friend, null);
+
+                        } else {
+                            createRowItems(null, friend, null);
+
+                        }
                     }
                     // add new conversation with friend, to the homepage list, only if something was sent
                     // when pressed launch message activity with that friends name
                     CustomListViewAdapter adapter = new CustomListViewAdapter(that,R.layout.activity_friends_list,
                             mFriendList, false);
                     adapter.setmTitle(R.id.label);
+                    adapter.setmImg(R.id.friendsProfilePic);
+                    adapter.setHasProfilePic(true);
 //                    adapter.setmSubtitleTitle(R.id.lastConvo);
 
                     ListView list = (ListView) findViewById(R.id.friendsList);
@@ -152,4 +167,8 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
         Intent intent = new Intent(this, MessageActivity.class);
         startActivity(intent);
     }
+
+
 }
+
+

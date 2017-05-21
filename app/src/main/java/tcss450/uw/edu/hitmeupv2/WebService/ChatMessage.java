@@ -19,6 +19,8 @@ public class ChatMessage {
     private String recipientId;
     /** Storing the date and time of message. */
     private String createdAt;
+    /** Checks to see if recipient is typing. */
+    private boolean isRecipientTyping;
 
     /**
      * Getter.
@@ -112,5 +114,13 @@ public class ChatMessage {
 
     public String getRecipientName() {
         return  recipientName;
+    }
+
+    public void setRecipientTyping(boolean isTyping) {
+        this.isRecipientTyping = isTyping;
+    }
+
+    public boolean getRecipientTyping() {
+        return this.isRecipientTyping;
     }
 }

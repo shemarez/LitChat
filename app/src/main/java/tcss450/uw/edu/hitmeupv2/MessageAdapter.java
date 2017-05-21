@@ -11,6 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.eyalbira.loadingdots.LoadingDots;
+
 import java.util.List;
 
 import tcss450.uw.edu.hitmeupv2.WebService.ChatMessage;
@@ -23,10 +25,12 @@ public class MessageAdapter extends BaseAdapter {
 
     private final List<ChatMessage> chatMessages;
     private Activity context;
+    private LoadingDots mDots;
 
     public MessageAdapter(Activity context, List<ChatMessage> chatMessages) {
         this.context = context;
         this.chatMessages = chatMessages;
+        mDots = new LoadingDots(context);
     }
 
     @Override
@@ -67,7 +71,8 @@ public class MessageAdapter extends BaseAdapter {
         }
 
         boolean myMsg = chatMessage.getIsme() ;//Just a dummy check to simulate whether it me or other sender
-        setAlignment(holder, myMsg);
+        boolean isTyping = chatMessage.getRecipientTyping();
+        setAlignment(holder, myMsg, isTyping);
         holder.txtMessage.setText(chatMessage.getMessage());
         holder.txtInfo.setText(chatMessage.getDate());
 
@@ -83,7 +88,8 @@ public class MessageAdapter extends BaseAdapter {
         chatMessages.addAll(messages);
     }
 
-    private void setAlignment(ViewHolder holder, boolean isMe) {
+    private void setAlignment(ViewHolder holder, boolean isMe, boolean isTyping) {
+
         if (isMe) {
             holder.contentWithBG.setBackgroundResource(R.drawable.in_message_bg);
 
@@ -102,6 +108,7 @@ public class MessageAdapter extends BaseAdapter {
             layoutParams = (LinearLayout.LayoutParams) holder.txtInfo.getLayoutParams();
             layoutParams.gravity = Gravity.RIGHT;
             holder.txtInfo.setLayoutParams(layoutParams);
+
         } else {
             holder.contentWithBG.setBackgroundResource(R.drawable.out_message_bg);
 
@@ -120,6 +127,11 @@ public class MessageAdapter extends BaseAdapter {
             layoutParams = (LinearLayout.LayoutParams) holder.txtInfo.getLayoutParams();
             layoutParams.gravity = Gravity.LEFT;
             holder.txtInfo.setLayoutParams(layoutParams);
+
+//            if(isTyping) {
+//                holder.contentWithBG.removeAllViews();
+//                holder.contentWithBG.addView(mDots, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+//            }
         }
     }
 

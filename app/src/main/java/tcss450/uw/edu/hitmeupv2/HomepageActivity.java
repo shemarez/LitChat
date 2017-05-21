@@ -31,6 +31,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import tcss450.uw.edu.hitmeupv2.ListItem.RowItem;
 import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
 import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
+import tcss450.uw.edu.hitmeupv2.WebService.User;
 
 /**
  * Shema Rezanejad
@@ -44,7 +45,9 @@ import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
 public class HomepageActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         AdapterView.OnItemClickListener {
     /** URL for site */
-    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+//    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+    private static final String BASE_URL = "http://10.0.2.2:8888/";
+
     private static final String TEST_URL = "http://10.0.2.2:8888/";
     /** List of friends.*/
     private ArrayList<RowItem> mFriendList = new ArrayList<RowItem>();
@@ -52,6 +55,8 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
     private HashMap<Integer, Conversation> mFriendMap = new HashMap<Integer, Conversation> ();
     /** Storing user id. */
     private  String mUserId;
+    /** Storing path to recipients profile image. */
+    private String mProfileImgPath;
 
 
     @Override
@@ -112,6 +117,14 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                         mFriendMap.put(i, convo);
                         String lastMsg = convos.get(i).getMessage();
                         String senderId = convo.getSenderId();
+                        String recipientId = convo.getRecipientId();
+                        String senderImg = convo.getSenderProfileImgPath();
+                        String recipientImg = convo.getRecipientProfileImgPath();
+
+
+
+//                        retrieveProfileImg(recipientId);
+//                        String
 
 
 
@@ -123,11 +136,21 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                         // the sender name for the label
                         if (mUserId.equals(senderId)) {
 
-                            createRowItems(0, convo.getRecipientName(), lastMsg);
+                            if(recipientImg != null) {
+                                String imgURL = BASE_URL +  "public/" + recipientImg;
+                                createRowItems(imgURL, convo.getRecipientName(), lastMsg);
+                            } else {
+                                createRowItems(null, convo.getRecipientName(), lastMsg);
+
+                            }
 
                         } else {
-
-                            createRowItems(0, convo.getSenderName(), lastMsg);
+                            if(senderImg != null) {
+                                String imgURL = BASE_URL +  "public/" + senderImg;
+                                createRowItems(imgURL, convo.getSenderName(), lastMsg);
+                            } else {
+                                createRowItems(null, convo.getSenderName(), lastMsg);
+                            }
                         }
                     }
 
@@ -136,6 +159,7 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
 
                     adapter.setmTitle(R.id.friendLabel);
                     adapter.setmSubtitleTitle(R.id.lastConvo);
+                    adapter.setmImg(R.id.profile_pic);
 
                     ListView list = (ListView) findViewById(R.id.conversationsList);
                     list.setAdapter(adapter);
@@ -158,7 +182,7 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
      * @param friendName friends name
      * @param lastConvo last message sent with friend
      */
-    private void createRowItems(int profilePic, String friendName, String lastConvo) {
+    private void createRowItems(String profilePic, String friendName, String lastConvo) {
 
         RowItem item = new RowItem(profilePic, friendName, lastConvo);
         mFriendList.add(item);
@@ -202,16 +226,6 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
-//        if (id == R.id.nav_camera) {
-//            // Handle the camera action
-//        } else if (id == R.id.nav_gallery) {
-//
-//        } else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else
             if (id == R.id.nav_friends) {
                 Intent friendIntent = new Intent(this, FriendsActivity.class);
                 friendIntent.putExtra("userId", mUserId);
@@ -248,4 +262,56 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         intent.putExtras(extras);
         startActivity(intent);
     }
+
+    /**
+     * Private helper which handles the GET of the profile image path.
+     * @param userId the recipients id
+     */
+    private void retrieveProfileImg(String userId) {
+        final HomepageActivity that = this;
+
+        System.out.println("USER ID " + userId);
+
+        //used to convert JSON to POJO (Plain old java object)
+        Gson gson = new GsonBuilder().setLenient().create();
+
+        //Set up retrofit to make our API call
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        //More setup
+        MessagingAPI api = retrofit.create(MessagingAPI.class);
+
+        Call<List<User>> call = api.getUserInfo(userId);
+        call.enqueue(new Callback<List<User>>() {
+            @Override
+            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                System.out.println(response);
+                if (response.isSuccessful()) {
+                    System.out.println("here");
+                    User me = response.body().get(0);
+
+                    String imgPath = me.getProfileImgPath();
+
+                    mProfileImgPath = BASE_URL +  "public/" + imgPath;
+
+                    System.out.println("img url " +  mProfileImgPath);
+
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<User>> call, Throwable t) {
+                System.out.println("fail");
+                t.printStackTrace();
+            }
+        });
+    }
 }
+
+
+
+

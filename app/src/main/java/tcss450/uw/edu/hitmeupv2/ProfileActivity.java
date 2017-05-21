@@ -38,6 +38,8 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
     private int PICK_IMAGE_REQUEST = 1;
     /** Use this if you want to test on a local server with emulator. */
     private static final String TEST_URL = "http://10.0.2.2:8888/";
+    /** URL for site */
+    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
     /** List of friends/contacts.*/
     private ArrayList<RowItem> mFriendList = new ArrayList<RowItem>();
     /** Stores the current users id */
@@ -63,7 +65,7 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
 
         mUserId = getIntent().getExtras().getString("userId");
 
-
+        // TODO: SEND USER ID WHEN PRESSING THE BACK BUTTON TO HOMEPAGE ACTIVITY
         if(toolbar != null) {
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -140,18 +142,17 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
 
     /**
      * Private helper which handles the GET of the profile image path.
+     * @param toolbar
      */
     private void retrieveProfileImg(final CollapsingToolbarLayout toolbar) {
         final ProfileActivity that = this;
-
-        final String profileImgPath = null;
 
         //used to convert JSON to POJO (Plain old java object)
         Gson gson = new GsonBuilder().setLenient().create();
 
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(TEST_URL)
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -170,7 +171,7 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
                     mProfileImgPath = me.getProfileImgPath();
                     mUsername = me.getUsername();
 
-                    String imgURL = TEST_URL +  "public/" + mProfileImgPath;
+                    String imgURL = BASE_URL +  "public/" + mProfileImgPath;
 
                     System.out.println("img url " +  imgURL);
                     if(mProfileImgPath != null) {

@@ -5,8 +5,11 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -73,7 +77,7 @@ public class MessageActivity extends AppCompatActivity  {
     private boolean otherUserIsOnline;
 
     private Conversation mConvo;
-
+    private ActionBar mActionBar;
     private Socket mSocket;
 
     private Activity mActivity;
@@ -97,9 +101,9 @@ public class MessageActivity extends AppCompatActivity  {
         getChatHistory();
 
         //  must update once communicating with server
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-
+        mActionBar = getSupportActionBar();
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+//        setSupportActionBar(mActionBar);
         try {
             mSocket = IO.socket(TEST_URL);
         } catch (URISyntaxException e) {
@@ -111,6 +115,8 @@ public class MessageActivity extends AppCompatActivity  {
         mSocket.on("updateMessageArea", newMessage);
         /* Listen for current sockets connected */
         mSocket.on("usersOnline", usersOnline);
+        /* Listen for showChatBubble event */
+        mSocket.on("showChatBubbles", chatBubbleEvent);
 
         JSONObject userIdObj = new JSONObject();
 
@@ -145,6 +151,19 @@ public class MessageActivity extends AppCompatActivity  {
                     chatMessage.setDate(getCurrentTime());
                     // add the message to view
                     displayMessage(chatMessage);
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener chatBubbleEvent = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //TODO: show chat bubbles
+                    System.out.println("Other user is typing");
                 }
             });
         }
@@ -213,10 +232,12 @@ public class MessageActivity extends AppCompatActivity  {
         messageET = (EditText) findViewById(R.id.messageEdit);
         sendBtn = (ImageButton) findViewById(R.id.chatSendButton);
 
+
         adapter = new MessageAdapter(MessageActivity.this, new ArrayList<ChatMessage>());
         messagesContainer.setAdapter(adapter);
 
         RelativeLayout container = (RelativeLayout) findViewById(R.id.container);
+//        System.out.println(dots.getDotsCount());
 
         // loadDummyHistory();
 
@@ -245,7 +266,34 @@ public class MessageActivity extends AppCompatActivity  {
                 postMessage(messageText, mUserId, otherUserId);
             }
         });
+
+        messageET.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                System.out.println("here");
+                JSONObject recipientIdObj = new JSONObject();
+                try {
+                    recipientIdObj.put("recipientId", otherUserId);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                mSocket.emit("isTyping", recipientIdObj);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
+
+
 
     /**
      * Displaying the message inside the 9 patch image.
@@ -347,17 +395,33 @@ public class MessageActivity extends AppCompatActivity  {
                     for (int i = 0; i < chatHistory.size(); i++) {
 
                         ChatMessage msg = chatHistory.get(i);
+                        String recipientUser = msg.getRecipientName();
 
                         if (mUserId.equals(msg.getSenderId())) {
                             msg.setMe(true);
                         } else {
                             msg.setMe(false);
-                        }
 
+                        }
+                        if(recipientUser != null) {
+                            mActionBar.setTitle(recipientUser);
+                        }
                         String message = msg.getMessage();
                         // TODO: 5/16/2017  fix datetime format
                         displayMessage(msg);
+
+
                     }
+
+                    ChatMessage c = new ChatMessage();
+                    c.setRecipientTyping(true);
+                    c.setMessage("dots");
+                    c.setDate(null);
+                    c.setMe(false);
+
+                    chatHistory.add(c);
+
+                    displayMessage(c);
                 }
             }
 
@@ -380,7 +444,7 @@ public class MessageActivity extends AppCompatActivity  {
 
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(TEST_URL)
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
