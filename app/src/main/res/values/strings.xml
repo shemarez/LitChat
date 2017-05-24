@@ -7,6 +7,7 @@
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="username">Username</string>
+    <string name="phone">Phone Number</string>
     <string name="clicklogin">Already a member? Login</string>
     <string name="clickSignup">No account yet? Create one</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>

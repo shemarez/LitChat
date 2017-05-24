@@ -70,15 +70,28 @@ public class MessageAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
+
+
         boolean myMsg = chatMessage.getIsme() ;//Just a dummy check to simulate whether it me or other sender
         boolean isTyping = chatMessage.getRecipientTyping();
-        setAlignment(holder, myMsg, isTyping);
+        setAlignment(holder, myMsg);
+
+        if(isTyping) {
+            holder.loadingDots.setVisibility(View.VISIBLE);
+//            holder.contentWithBG.removeAllViews();
+//            holder.contentWithBG.addView(mDots, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        } else {
+            holder.loadingDots.setVisibility(View.GONE);
+
+        }
+
         holder.txtMessage.setText(chatMessage.getMessage());
         holder.txtInfo.setText(chatMessage.getDate());
 
 
         return convertView;
     }
+
 
     public void add(ChatMessage message) {
         chatMessages.add(message);
@@ -88,7 +101,7 @@ public class MessageAdapter extends BaseAdapter {
         chatMessages.addAll(messages);
     }
 
-    private void setAlignment(ViewHolder holder, boolean isMe, boolean isTyping) {
+    private void setAlignment(ViewHolder holder, boolean isMe) {
 
         if (isMe) {
             holder.contentWithBG.setBackgroundResource(R.drawable.in_message_bg);
@@ -127,11 +140,6 @@ public class MessageAdapter extends BaseAdapter {
             layoutParams = (LinearLayout.LayoutParams) holder.txtInfo.getLayoutParams();
             layoutParams.gravity = Gravity.LEFT;
             holder.txtInfo.setLayoutParams(layoutParams);
-
-//            if(isTyping) {
-//                holder.contentWithBG.removeAllViews();
-//                holder.contentWithBG.addView(mDots, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-//            }
         }
     }
 
@@ -141,6 +149,7 @@ public class MessageAdapter extends BaseAdapter {
         holder.content = (LinearLayout) v.findViewById(R.id.content);
         holder.contentWithBG = (LinearLayout) v.findViewById(R.id.contentWithBackground);
         holder.txtInfo = (TextView) v.findViewById(R.id.txtInfo);
+        holder.loadingDots = (LoadingDots) v.findViewById(R.id.myLoadingDots);
         return holder;
     }
 
@@ -150,5 +159,8 @@ public class MessageAdapter extends BaseAdapter {
         public TextView txtInfo;
         public LinearLayout content;
         public LinearLayout contentWithBG;
+        public LoadingDots loadingDots;
     }
+
+
 }

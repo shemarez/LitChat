@@ -3,21 +3,18 @@ package tcss450.uw.edu.hitmeupv2;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -70,17 +67,24 @@ public class MessageActivity extends AppCompatActivity  {
     private List<ChatMessage> chatHistory;
     /** Stores the current users id (i.e. the sender) */
     private String mUserId;
-
     /** The other user that this user is talking to */
     private String otherUserId;
-
+    /** Checking to see if the other user is online. */
     private boolean otherUserIsOnline;
-
+    /** Storing the conversation. */
     private Conversation mConvo;
-    private ActionBar mActionBar;
+    /** Storing toolbar so we can set subtitle */
+    private Toolbar mActionBar;
+    /** The socket */
     private Socket mSocket;
-
+    /** This activity. */
     private Activity mActivity;
+    /** Chatmessage that is added when a chat bubble should be shown */
+    private ChatMessage mTypingBubble;
+    /** Check to see if there is a typing bubble already added */
+    private boolean hasTypingBubble;
+    /** Check to see if user is typing. */
+    private boolean isTyping;
 
     public MessageActivity() {
         chatHistory = new ArrayList<>();
@@ -92,18 +96,23 @@ public class MessageActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_message);
 
         mActivity = this;
-
         mUserId = getIntent().getExtras().getString("userId");
         mConvo = (Conversation) getIntent().getSerializableExtra("Conversation");
         otherUserIsOnline = false;
+        hasTypingBubble = false;
+        isTyping = false;
+        mTypingBubble = new ChatMessage();
 
         initControls();
         getChatHistory();
 
         //  must update once communicating with server
-        mActionBar = getSupportActionBar();
-        mActionBar.setDisplayHomeAsUpEnabled(true);
-//        setSupportActionBar(mActionBar);
+        mActionBar = (Toolbar) findViewById(R.id.myMsgToolbar);
+
+        setSupportActionBar(mActionBar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mActionBar.setSubtitle("offline");
+
         try {
             mSocket = IO.socket(TEST_URL);
         } catch (URISyntaxException e) {
@@ -151,6 +160,7 @@ public class MessageActivity extends AppCompatActivity  {
                     chatMessage.setDate(getCurrentTime());
                     // add the message to view
                     displayMessage(chatMessage);
+
                 }
             });
         }
@@ -164,8 +174,19 @@ public class MessageActivity extends AppCompatActivity  {
                 public void run() {
                     //TODO: show chat bubbles
                     System.out.println("Other user is typing");
+                    if(!hasTypingBubble) {
+                        displayTypingBubble();
+                    }
+
+                    if(hasTypingBubble && !isTyping) {
+                        chatHistory.remove(chatHistory.size() - 1);
+                        adapter.notifyDataSetChanged();
+                    }
+
+
                 }
             });
+
         }
     };
 
@@ -189,7 +210,7 @@ public class MessageActivity extends AppCompatActivity  {
                                 otherUserIsOnline = true;
                                 Log.i("Sockets", "Other user Is online");
                                 //TODO: update the front end online indicator here
-
+                                mActionBar.setSubtitle("online");
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -236,11 +257,6 @@ public class MessageActivity extends AppCompatActivity  {
         adapter = new MessageAdapter(MessageActivity.this, new ArrayList<ChatMessage>());
         messagesContainer.setAdapter(adapter);
 
-        RelativeLayout container = (RelativeLayout) findViewById(R.id.container);
-//        System.out.println(dots.getDotsCount());
-
-        // loadDummyHistory();
-
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -271,7 +287,7 @@ public class MessageActivity extends AppCompatActivity  {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                isTyping = false;
             }
 
             @Override
@@ -283,12 +299,13 @@ public class MessageActivity extends AppCompatActivity  {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                isTyping = true;
                 mSocket.emit("isTyping", recipientIdObj);
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-
+                isTyping = false;
             }
         });
     }
@@ -313,36 +330,6 @@ public class MessageActivity extends AppCompatActivity  {
         messagesContainer.setSelection(messagesContainer.getCount() - 1);
     }
 
-    /**
-     * Loading chat history. Right now
-     * this is just loading dummy data.
-     */
-    private void loadDummyHistory(){
-
-        chatHistory = new ArrayList<ChatMessage>();
-
-        ChatMessage msg = new ChatMessage();
-        msg.setId("1");
-        msg.setMe(false);
-        msg.setMessage("Welcome to LitChat");
-//        msg.setDate(DateFormat.getDateTimeInstance().format(new Date()));
-        msg.setDate(getCurrentTime());
-        chatHistory.add(msg);
-        ChatMessage msg1 = new ChatMessage();
-        msg1.setId("2");
-        msg1.setMe(false);
-        msg1.setMessage("As of right now, frontend messaging does not work. However " +
-                "the frontend display for messaging works! Please try typing and " +
-                "sending a message! Dont forget to use some emojis!");
-//        msg1.setDate(DateFormat.getDateTimeInstance().format(new Date()));
-        msg1.setDate(getCurrentTime());
-        chatHistory.add(msg1);
-
-        for (int i=0; i < chatHistory.size(); i++) {
-            ChatMessage message = chatHistory.get(i);
-            displayMessage(message);
-        }
-    }
 
 
     /**
@@ -412,16 +399,6 @@ public class MessageActivity extends AppCompatActivity  {
 
 
                     }
-
-                    ChatMessage c = new ChatMessage();
-                    c.setRecipientTyping(true);
-                    c.setMessage("dots");
-                    c.setDate(null);
-                    c.setMe(false);
-
-                    chatHistory.add(c);
-
-                    displayMessage(c);
                 }
             }
 
@@ -492,7 +469,22 @@ public class MessageActivity extends AppCompatActivity  {
             e.printStackTrace();
         }
         mSocket.emit("userWentOffline", userIdObj);
+        mActionBar.setSubtitle("offline");
         mSocket.disconnect();
+    }
+
+    /**
+     * Helper method for displaying the typing bubble
+     * when the other user is typing.
+     */
+    private void displayTypingBubble() {
+            mTypingBubble.setRecipientTyping(true);
+            mTypingBubble.setMessage("");
+            mTypingBubble.setDate(null);
+            mTypingBubble.setMe(false);
+            chatHistory.add(mTypingBubble);
+            displayMessage(mTypingBubble);
+            hasTypingBubble = true;
     }
 }
 

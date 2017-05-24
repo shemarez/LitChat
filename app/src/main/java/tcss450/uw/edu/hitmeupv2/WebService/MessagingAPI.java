@@ -2,11 +2,14 @@ package tcss450.uw.edu.hitmeupv2.WebService;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 
 /**
@@ -77,6 +80,16 @@ public interface MessagingAPI {
     @FormUrlEncoded
     @POST("send-message/{senderId}/{recipientId}")
     Call<List<User>> sendMessage(@Field("message") String message, @Path("senderId") String senderId, @Path("recipientId") String recipientId);
+
+    /**
+     * Post a profile picture
+     * @param file the file
+     * @param userId the user id
+     * @return user
+     */
+    @Multipart
+    @POST("upload-photo/{userId}")
+    Call<List<User>> postProfilePic(@Part MultipartBody.Part image, @Path("userId") String userId);
 
 
 

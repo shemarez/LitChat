@@ -20,10 +20,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -48,6 +51,7 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
     private String mUsername;
     /** Stores path to profile image. */
     private String mProfileImgPath;
+    private String mFilePath;
 
     public ProfileActivity() {
         mProfileImgPath = null;
@@ -58,21 +62,23 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.profileToolbar);
         CollapsingToolbarLayout t = (CollapsingToolbarLayout) findViewById(R.id.collapse_toolbar);
 
-
-
         mUserId = getIntent().getExtras().getString("userId");
+
 
         // TODO: SEND USER ID WHEN PRESSING THE BACK BUTTON TO HOMEPAGE ACTIVITY
         if(toolbar != null) {
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onBackPressed();
+                    Log.i("PRESSED BACK", mUserId);
+
+//                    onBackPressed();
 
                 }
             });
@@ -108,20 +114,29 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
     }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-
-            Uri uri = data.getData();
-
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                // Log.d(TAG, String.valueOf(bitmap));
 
+                // Getting the URI here
+                android.net.Uri selectedImage = data.getData();
+
+                // Getting the file path
+                // returns /document/image:38 which results in
+                // file not found in postProfilePic
+                String filePath = selectedImage.getPath();
+
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
+                // Log.d(TAG, String.valueOf(bitmap));
                 ImageView imageView = (ImageView) findViewById(R.id.expandedProfilePic);
                 imageView.setImageBitmap(bitmap);
+
+                postProfilePic(filePath);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -130,19 +145,74 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
 
 
 
+
     @Override
     public void onBackPressed() {
 
-        Log.i("pressed back", "back");
         Intent homepage = new Intent(this, HomepageActivity.class);
         homepage.putExtra("userId", mUserId);
         startActivity(homepage);
 
     }
 
+
+    private void postProfilePic(String path) {
+//        String path = "file//:" + thePath;
+//        File file = null;
+
+        // Get the file instance
+        File file = new File(path);
+
+        System.out.println("PATH " + path);
+
+
+
+        RequestBody avatar = RequestBody.create(MediaType.parse("image/*"), file);
+//        System.out.println("THE PATH " + avatar.toString());
+
+
+
+        //used to convert JSON to POJO (Plain old java object)
+        Gson gson = new GsonBuilder().setLenient().create();
+
+
+        //Set up retrofit to make our API call
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(TEST_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        //More setup
+        MessagingAPI api = retrofit.create(MessagingAPI.class);
+
+        //Call the login interface that we created
+//        Call<List<User>> call = api.postProfilePic(avatar, mUserId);
+//
+////        //Make API call, handle success and error
+//        call.enqueue(new Callback<List<User>>() {
+//
+//            @Override
+//            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+//                if (response.isSuccessful()) {
+//
+//                    Log.i("ProfileActivity", response.toString());
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<User>> call, Throwable t) {
+//                System.out.println("fail");
+//                t.printStackTrace();
+//            }
+//        });
+
+
+    }
+
     /**
      * Private helper which handles the GET of the profile image path.
-     * @param toolbar
+     * @param toolbar the action bar for setting the photo
      */
     private void retrieveProfileImg(final CollapsingToolbarLayout toolbar) {
         final ProfileActivity that = this;
