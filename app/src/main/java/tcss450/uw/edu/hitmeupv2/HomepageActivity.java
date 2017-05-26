@@ -31,7 +31,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import tcss450.uw.edu.hitmeupv2.ListItem.RowItem;
 import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
 import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
-import tcss450.uw.edu.hitmeupv2.WebService.User;
 
 /**
  * Shema Rezanejad
@@ -66,8 +65,10 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         final HomepageActivity  that = this;
         //Call the getConversations method from the interface that we created
+
         mUserId = getIntent().getExtras().getString("userId");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -120,13 +121,6 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                         String recipientId = convo.getRecipientId();
                         String senderImg = convo.getSenderProfileImgPath();
                         String recipientImg = convo.getRecipientProfileImgPath();
-
-
-
-//                        retrieveProfileImg(recipientId);
-//                        String
-
-
 
                         // When creating the friend name label for the row items
                         // we want to display the "opposite name", so if the
@@ -263,53 +257,7 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         startActivity(intent);
     }
 
-    /**
-     * Private helper which handles the GET of the profile image path.
-     * @param userId the recipients id
-     */
-    private void retrieveProfileImg(String userId) {
-        final HomepageActivity that = this;
 
-        System.out.println("USER ID " + userId);
-
-        //used to convert JSON to POJO (Plain old java object)
-        Gson gson = new GsonBuilder().setLenient().create();
-
-        //Set up retrofit to make our API call
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-
-        //More setup
-        MessagingAPI api = retrofit.create(MessagingAPI.class);
-
-        Call<List<User>> call = api.getUserInfo(userId);
-        call.enqueue(new Callback<List<User>>() {
-            @Override
-            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                System.out.println(response);
-                if (response.isSuccessful()) {
-                    System.out.println("here");
-                    User me = response.body().get(0);
-
-                    String imgPath = me.getProfileImgPath();
-
-                    mProfileImgPath = BASE_URL +  "public/" + imgPath;
-
-                    System.out.println("img url " +  mProfileImgPath);
-
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<User>> call, Throwable t) {
-                System.out.println("fail");
-                t.printStackTrace();
-            }
-        });
-    }
 }
 
 

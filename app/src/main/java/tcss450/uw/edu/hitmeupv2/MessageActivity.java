@@ -27,10 +27,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -150,6 +153,15 @@ public class MessageActivity extends AppCompatActivity  {
                     try {
                         message = data.getString("message");
                         Log.i("This is the message", message);
+                        System.out.println("OTHERUSER");
+                        if(hasTypingBubble) {
+                            System.out.println("PRESSED BUTTON REMOVE TYPING BUBBLE");
+                            hasTypingBubble = false;
+                            isTyping = false;
+                            adapter.remove(mTypingBubble);
+                            adapter.notifyDataSetChanged();
+                            scroll();
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                         return;
@@ -169,19 +181,47 @@ public class MessageActivity extends AppCompatActivity  {
     private Emitter.Listener chatBubbleEvent = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
+            final Timer timer = new Timer();
+            final long DELAY = 3000; // milliseconds
+
             mActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    //TODO: show chat bubbles
-                    System.out.println("Other user is typing");
+                    System.out.println("is typing " + isTyping);
                     if(!hasTypingBubble) {
                         displayTypingBubble();
                     }
+                    if(hasTypingBubble && isTyping) {
 
-                    if(hasTypingBubble && !isTyping) {
-                        chatHistory.remove(chatHistory.size() - 1);
-                        adapter.notifyDataSetChanged();
+                        timer.schedule(
+                                new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        runOnUiThread(new Runnable() {
+                                                          @Override
+                                                          public void run() {
+                                                              isTyping = false;
+                                                              System.out.println("REMOVE BUBBLE");
+                                                              if(hasTypingBubble) {
+                                                                  adapter.remove(mTypingBubble);
+                                                                  hasTypingBubble = false;
+
+                                                              }
+                                                              adapter.notifyDataSetChanged();
+                                                              scroll();
+                                                              Log.i(MessageActivity.class.getSimpleName(), "User stopped typing");
+
+                                                          }
+                                                      }
+                                        );
+
+                                    }
+                                },
+                                DELAY
+                        );
                     }
+
+
 
 
                 }
@@ -268,6 +308,7 @@ public class MessageActivity extends AppCompatActivity  {
                 ChatMessage chatMessage = new ChatMessage();
                 chatMessage.setMessage(messageText);
                 chatMessage.setMe(true);
+                chatMessage.setDate(getCurrentTime());
 
                 messageET.setText("");
 
@@ -287,7 +328,6 @@ public class MessageActivity extends AppCompatActivity  {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                isTyping = false;
             }
 
             @Override
@@ -299,13 +339,15 @@ public class MessageActivity extends AppCompatActivity  {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
                 isTyping = true;
+
                 mSocket.emit("isTyping", recipientIdObj);
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                isTyping = false;
+
             }
         });
     }
@@ -383,16 +425,40 @@ public class MessageActivity extends AppCompatActivity  {
 
                         ChatMessage msg = chatHistory.get(i);
                         String recipientUser = msg.getRecipientName();
+                        String senderUser = msg.getSenderName();
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                        SimpleDateFormat output = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        Date d = null;
+                        try {
+                            d = sdf.parse(msg.getDate());
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        String formattedTime = output.format(d);
+                        System.out.println("NEW TIME " + formattedTime);
+
+
+//                        SimpleDateFormat fromUser = new SimpleDateFormat("dd/MM/yyyy");
+//                        SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
+//
+//                        try {
+//
+//                            String reformattedStr = myFormat.format(fromUser.parse(msg.getDate()));
+//                            System.out.println("NEW TIME " + reformattedStr);
+//                        } catch (ParseException e) {
+//                            e.printStackTrace();
+//                        }
 
                         if (mUserId.equals(msg.getSenderId())) {
                             msg.setMe(true);
+                            mActionBar.setTitle(recipientUser);
                         } else {
                             msg.setMe(false);
+                            mActionBar.setTitle(senderUser);
 
                         }
-                        if(recipientUser != null) {
-                            mActionBar.setTitle(recipientUser);
-                        }
+
                         String message = msg.getMessage();
                         // TODO: 5/16/2017  fix datetime format
                         displayMessage(msg);
@@ -411,41 +477,27 @@ public class MessageActivity extends AppCompatActivity  {
     }
 
 
+    /**
+     * Posts the message sent by user to the server. Also displays
+     * the message on the frontend. Use sockets to display in
+     * real time.
+     * @param message the message being posted
+     * @param senderId the person who is sending the message
+     * @param recipientId the person recieving the message
+     */
     public void postMessage(String message, String senderId, String recipientId) {
         Log.i("postMessage", message);
         Log.i("postMessage", senderId);
         Log.i("postMessage", recipientId);
 
-        //used to convert JSON to POJO (Plain old java object)
-        Gson gson = new GsonBuilder().setLenient().create();
-
-        //Set up retrofit to make our API call
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-
-        //More setup
-        MessagingAPI api = retrofit.create(MessagingAPI.class);
-
-//        Call<List<User>> call = api.sendMessage(message, mUserId, recipientId);
+//        //used to convert JSON to POJO (Plain old java object)
+//        Gson gson = new GsonBuilder().setLenient().create();
 //
-//        call.enqueue(new Callback<List<User>>() {
-//            @Override
-//            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-//                System.out.println(response);
-//                if (response.isSuccessful()) {
-//                    System.out.println("here");
-//
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<User>> call, Throwable t) {
-//                System.out.println("fail");
-//                t.printStackTrace();
-//            }
-//        });
+//        //Set up retrofit to make our API call
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl(BASE_URL)
+//                .addConverterFactory(GsonConverterFactory.create(gson))
+//                .build();
 
         JSONObject messageObj = new JSONObject();
         try {
@@ -455,7 +507,11 @@ public class MessageActivity extends AppCompatActivity  {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+
         mSocket.emit("sendMessage", messageObj);
+
+
     }
 
     @Override
@@ -478,11 +534,11 @@ public class MessageActivity extends AppCompatActivity  {
      * when the other user is typing.
      */
     private void displayTypingBubble() {
+            isTyping = true;
             mTypingBubble.setRecipientTyping(true);
             mTypingBubble.setMessage("");
             mTypingBubble.setDate(null);
             mTypingBubble.setMe(false);
-            chatHistory.add(mTypingBubble);
             displayMessage(mTypingBubble);
             hasTypingBubble = true;
     }

@@ -12,6 +12,10 @@ public class User {
     private String username;
     /** Store password. */
     private String password;
+    /** Store name */
+    private String name;
+    /** store phone */
+    private String phone;
 
     /*
      * Message sent from the web service, can be "Success" which means user found
@@ -63,5 +67,21 @@ public class User {
      * @return profileImgPath
      */
     public String getProfileImgPath() { return profileImgPath; }
+
+    /**
+     * Return the users name
+     * @return name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Return users phone number in string form
+     * @return phone
+     */
+    public String getPhone() {
+        return phone;
+    }
 }
 

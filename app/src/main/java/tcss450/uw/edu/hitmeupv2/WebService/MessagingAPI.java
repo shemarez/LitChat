@@ -37,7 +37,7 @@ public interface MessagingAPI {
      */
     @FormUrlEncoded
     @POST("register")
-    Call<List<User>> register(@Field("username") String username, @Field("password") String password);
+    Call<List<User>> register(@Field("username") String username, @Field("password") String password, @Field("name") String name, @Field("phone") String phone);
 
     /**
      * Get last conversation from recipient.
@@ -83,16 +83,21 @@ public interface MessagingAPI {
 
     /**
      * Post a profile picture
-     * @param file the file
+     * @param avatar the file
      * @param userId the user id
      * @return user
      */
     @Multipart
     @POST("upload-photo/{userId}")
-    Call<List<User>> postProfilePic(@Part MultipartBody.Part image, @Path("userId") String userId);
+    Call<List<User>> postProfilePic(@Part MultipartBody.Part avatar, @Path("userId") String userId);
 
+    /**
+     * Get all usernames
+     *
+     * @return a username
+     */
+    @GET("getUsers/")
+    Call<List<User>> getUsers();
 
-
-    // for pictures use @Multipart
 
 }

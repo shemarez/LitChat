@@ -78,8 +78,6 @@ public class MessageAdapter extends BaseAdapter {
 
         if(isTyping) {
             holder.loadingDots.setVisibility(View.VISIBLE);
-//            holder.contentWithBG.removeAllViews();
-//            holder.contentWithBG.addView(mDots, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         } else {
             holder.loadingDots.setVisibility(View.GONE);
 
@@ -95,6 +93,10 @@ public class MessageAdapter extends BaseAdapter {
 
     public void add(ChatMessage message) {
         chatMessages.add(message);
+    }
+
+    public void remove(ChatMessage message) {
+        chatMessages.remove(chatMessages.size() - 1);
     }
 
     public void add(List<ChatMessage> messages) {

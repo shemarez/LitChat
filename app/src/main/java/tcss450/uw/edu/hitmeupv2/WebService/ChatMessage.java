@@ -1,5 +1,8 @@
 package tcss450.uw.edu.hitmeupv2.WebService;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by Shema on 4/20/2017.
  */
@@ -13,7 +16,9 @@ public class ChatMessage {
     private String message;
     /** Storing the user id. */
     private String senderName;
+    /** Name of the recipient. */
     private String recipientName;
+    /** Name of the sender. */
     private String senderId;
     /** Storing the recipient id. */
     private String recipientId;
@@ -98,6 +103,7 @@ public class ChatMessage {
      */
     public void setDate(String dateTime) {
         this.createdAt = dateTime;
+
     }
 
     /**

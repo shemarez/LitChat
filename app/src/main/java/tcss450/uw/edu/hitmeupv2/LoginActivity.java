@@ -32,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
     /*
      * Production server
      */
-    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+//    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
     /*
      * Use this if you want to test on a local server with emulator
      */
@@ -64,6 +64,7 @@ public class LoginActivity extends AppCompatActivity {
     public void switchToSignUp(View v) {
         Intent intent = new Intent(this, SignupActivity.class);
         startActivity(intent);
+        finish();
     }
 
     /**
@@ -91,8 +92,8 @@ public class LoginActivity extends AppCompatActivity {
 
         // check if editText is empty
         if(username.length() == 0 || password.length() == 0) {
-            snackbar.show();
             mLoadingScreen.dismiss();
+            snackbar.show();
         } else {
             //used to convert JSON to POJO (Plain old java object)
             Gson gson = new GsonBuilder().setLenient().create();
@@ -101,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
 
             //Set up retrofit to make our API call
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
+                    .baseUrl(TEST_URL)
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
 
@@ -126,6 +127,7 @@ public class LoginActivity extends AppCompatActivity {
                         if (user.getMessage().equals("Success")) {
                             startActivity(intent); //Switch to new activity
                             mLoadingScreen.dismiss();
+                            finish();
                         } else {
                             Log.w("LoginActivity", "Login Error, Please Try Again");
                             mLoadingScreen.dismiss();
