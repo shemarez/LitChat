@@ -2,16 +2,20 @@ package tcss450.uw.edu.hitmeupv2;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.net.Uri;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.eyalbira.loadingdots.LoadingDots;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -22,6 +26,9 @@ import tcss450.uw.edu.hitmeupv2.WebService.ChatMessage;
  */
 
 public class MessageAdapter extends BaseAdapter {
+    private static final String TEST_URL = "http://10.0.2.2:8888/";
+    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+
 
     private final List<ChatMessage> chatMessages;
     private Activity context;
@@ -74,6 +81,8 @@ public class MessageAdapter extends BaseAdapter {
 
         boolean myMsg = chatMessage.getIsme() ;//Just a dummy check to simulate whether it me or other sender
         boolean isTyping = chatMessage.getRecipientTyping();
+        boolean isPhoto = chatMessage.isPhotoMsg();
+        String uri = chatMessage.getPhotoSrc();
         setAlignment(holder, myMsg);
 
         if(isTyping) {
@@ -83,8 +92,31 @@ public class MessageAdapter extends BaseAdapter {
 
         }
 
+        if(isPhoto) {
+            System.out.println("THE URI " + TEST_URL +"public/" +uri);
+//            InputStream imageStream = getContentResolver().openInputStream(u);
+//            final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+//            holder.sentPhoto.setImageBitmap(selectedImage);
+//            File f = new File(TEST_URL+ "/public/" + uri);
+//            Picasso.with(context).load(f).into(holder.sentPhoto);
+
+            Picasso.Builder builder = new Picasso.Builder(context);
+            builder.listener(new Picasso.Listener()
+            {
+                @Override
+                public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception)
+                {
+                    exception.printStackTrace();
+                }
+            });
+            builder.build().load(TEST_URL+ "/public/" + uri).into(holder.sentPhoto);
+            holder.sentPhoto.setVisibility(View.VISIBLE);
+        }
+
+
         holder.txtMessage.setText(chatMessage.getMessage());
         holder.txtInfo.setText(chatMessage.getDate());
+        holder.txtMonthDay.setText((chatMessage.getMonthDay()));
 
 
         return convertView;
@@ -122,7 +154,12 @@ public class MessageAdapter extends BaseAdapter {
 
             layoutParams = (LinearLayout.LayoutParams) holder.txtInfo.getLayoutParams();
             layoutParams.gravity = Gravity.RIGHT;
+            holder.txtInfo.setTextColor(Color.parseColor("#b34700"));
             holder.txtInfo.setLayoutParams(layoutParams);
+
+            layoutParams = (LinearLayout.LayoutParams) holder.txtMonthDay.getLayoutParams();
+            layoutParams.gravity = Gravity.RIGHT;
+            holder.txtMonthDay.setLayoutParams(layoutParams);
 
         } else {
             holder.contentWithBG.setBackgroundResource(R.drawable.out_message_bg);
@@ -142,6 +179,10 @@ public class MessageAdapter extends BaseAdapter {
             layoutParams = (LinearLayout.LayoutParams) holder.txtInfo.getLayoutParams();
             layoutParams.gravity = Gravity.LEFT;
             holder.txtInfo.setLayoutParams(layoutParams);
+            holder.txtInfo.setTextColor(Color.parseColor("#606060"));
+            layoutParams = (LinearLayout.LayoutParams) holder.txtMonthDay.getLayoutParams();
+            layoutParams.gravity = Gravity.LEFT;
+            holder.txtMonthDay.setLayoutParams(layoutParams);
         }
     }
 
@@ -152,6 +193,8 @@ public class MessageAdapter extends BaseAdapter {
         holder.contentWithBG = (LinearLayout) v.findViewById(R.id.contentWithBackground);
         holder.txtInfo = (TextView) v.findViewById(R.id.txtInfo);
         holder.loadingDots = (LoadingDots) v.findViewById(R.id.myLoadingDots);
+        holder.txtMonthDay = (TextView) v.findViewById(R.id.monthDay);
+        holder.sentPhoto = (ImageView)v.findViewById(R.id.sentPhoto);
         return holder;
     }
 
@@ -161,6 +204,8 @@ public class MessageAdapter extends BaseAdapter {
         public TextView txtInfo;
         public LinearLayout content;
         public LinearLayout contentWithBG;
+        public TextView txtMonthDay;
+        public ImageView sentPhoto;
         public LoadingDots loadingDots;
     }
 

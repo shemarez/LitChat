@@ -17,5 +17,7 @@
     <string name="msg_box">Type a message...</string>
     <string name="title_activity_friends">Friends</string>
     <string name="title_activity_profile">ProfileActivity</string>
+    <string name="LOGIN_PREFS">edu.tacoma.uw.HitMeUpv2.PREFS</string>
+    <string name="LOGGEDIN">loggedin</string>
 
 </resources>

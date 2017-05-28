@@ -1,8 +1,5 @@
 package tcss450.uw.edu.hitmeupv2.WebService;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
  * Created by Shema on 4/20/2017.
  */
@@ -26,6 +23,14 @@ public class ChatMessage {
     private String createdAt;
     /** Checks to see if recipient is typing. */
     private boolean isRecipientTyping;
+    /** Storing the month and day of text*/
+    private String monthDay;
+    /** Check to see if message is photo message */
+    private boolean isPhotoMsg;
+    /** Sets the imageview src for photo message */
+    private String photoSrc;
+    /** Checks to see if it is a photo from DB */
+    private int isPhoto;
 
     /**
      * Getter.
@@ -107,6 +112,16 @@ public class ChatMessage {
     }
 
     /**
+     * Set the month and day of the message.
+     *
+     * @param theMonthDay ex Apr 21
+     */
+    public void setMonthDay(String theMonthDay) {
+        this.monthDay = theMonthDay;
+    }
+
+
+    /**
      * Setter
      * @return the recipient id
      */
@@ -114,10 +129,18 @@ public class ChatMessage {
         return recipientId;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSenderName() {
         return senderName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getRecipientName() {
         return  recipientName;
     }
@@ -128,5 +151,31 @@ public class ChatMessage {
 
     public boolean getRecipientTyping() {
         return this.isRecipientTyping;
+    }
+
+    public String getMonthDay() { return monthDay; }
+
+    public boolean isPhotoMsg() {
+        return isPhotoMsg;
+    }
+
+    public void setPhotoMsg(boolean photoMsg) {
+        isPhotoMsg = photoMsg;
+    }
+
+    public String getPhotoSrc() {
+        return photoSrc;
+    }
+
+    public void setPhotoSrc(String photoSrc) {
+        this.photoSrc = photoSrc;
+    }
+
+    public int getIsPhoto() {
+        return isPhoto;
+    }
+
+    public void setIsPhoto(int isPhoto) {
+        this.isPhoto = isPhoto;
     }
 }
