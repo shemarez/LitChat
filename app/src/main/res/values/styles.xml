@@ -31,7 +31,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/messageScreenBackground</item>
         <item name="android:textColorPrimary">@color/textMessageColor</item>
-        <item name="android:textColorSecondary">@color/textColorSecondary</item>
+        <item name="android:textColorSecondary">@color/textMessageColor</item>
         <item name="android:textColorHint">@color/textColorHint</item>
     </style>
 

@@ -30,19 +30,34 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <ImageButton
+            android:id="@+id/attachPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/messagesContainer"
+            android:layout_gravity="start"
+            android:layout_marginRight="0dp"
+
+            android:background="@null"
+            android:cropToPadding="false"
+            android:paddingRight="4dp"
+            android:src="@drawable/ic_camera_alt_black_24dp"
+            android:tint="@color/textColorHint" />
+
+
         <EditText
             android:id="@+id/messageEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textShortMessage"
-            android:autoText="true"
-            android:hint="@string/msg_box"
-            android:textColor="@color/textMessageColor"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_toLeftOf="@+id/chatSendButton"
-            android:layout_toStartOf="@+id/chatSendButton" />
+            android:layout_toRightOf="@id/attachPhoto"
+            android:autoText="true"
+            android:background="@color/messageScreenBackground"
+            android:hint="@string/msg_box"
+            android:inputType="textShortMessage"
+            android:textColor="@color/textMessageColor" />
+
 
         <ListView
             android:id="@+id/messagesContainer"
@@ -50,12 +65,12 @@
             android:layout_height="match_parent"
             android:layout_above="@+id/messageEdit"
             android:layout_alignParentLeft="false"
+            android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_marginBottom="20dp"
             android:divider="@null"
             android:listSelector="@android:color/transparent"
             android:transcriptMode="alwaysScroll" />
-
 
 
         <ImageButton
@@ -65,6 +80,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/messagesContainer"
+            android:background="@color/messageScreenBackground"
             android:onClick="postMessage"
             android:tint="@color/colorAccent"
             app:srcCompat="@drawable/ic_menu_send" />

@@ -10,7 +10,8 @@
     <color name="textMessageColor">#000000</color>
     <color name="textColorSecondary">#ffffff</color>
     <color name="textColorHint">#b3b3b3</color>
-
+    <color name="textInfoColorGray">#606060</color>
+    <color name="textInfoColorOrange">#cc5200</color>
     <color name="actionBar">#ffffff</color>
     <color name="messageScreenBackground">#ffffff</color>
 

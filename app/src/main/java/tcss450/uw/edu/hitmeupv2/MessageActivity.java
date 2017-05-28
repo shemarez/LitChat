@@ -2,6 +2,8 @@ package tcss450.uw.edu.hitmeupv2;
 
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -26,6 +28,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,6 +46,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import tcss450.uw.edu.hitmeupv2.WebService.ChatMessage;
 import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
 import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
+import tcss450.uw.edu.hitmeupv2.WebService.PostPhoto;
 
 /**
  * Shema Rezanejad
@@ -54,10 +58,13 @@ import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
 public class MessageActivity extends AppCompatActivity  {
     /** URL for site */
     private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+    private int PICK_IMAGE_REQUEST = 1;
     /**
      * Use this if you want to test on a local server with emulator
      */
+//    private static final String TEST_URL = "https://glacial-citadel-99088.herokuapp.com/";
     private static final String TEST_URL = "http://10.0.2.2:8888/";
+
     /** String from edit text that sender is writing. */
     private EditText messageET;
     /** Container for all messages. */
@@ -88,6 +95,10 @@ public class MessageActivity extends AppCompatActivity  {
     private boolean hasTypingBubble;
     /** Check to see if user is typing. */
     private boolean isTyping;
+    /** Button which sends photo */
+    private ImageButton mPhotoBtn;
+    /** Posts and gets from DB*/
+    private PostPhoto mPhoto;
 
     public MessageActivity() {
         chatHistory = new ArrayList<>();
@@ -101,6 +112,9 @@ public class MessageActivity extends AppCompatActivity  {
         mActivity = this;
         mUserId = getIntent().getExtras().getString("userId");
         mConvo = (Conversation) getIntent().getSerializableExtra("Conversation");
+        mPhoto = new PostPhoto(this, R.layout.activity_message, R.id.sentPhoto);
+
+        // // TODO: 5/27/2017 finish adding picture mail 
         otherUserIsOnline = false;
         hasTypingBubble = false;
         isTyping = false;
@@ -153,9 +167,8 @@ public class MessageActivity extends AppCompatActivity  {
                     try {
                         message = data.getString("message");
                         Log.i("This is the message", message);
-                        System.out.println("OTHERUSER");
                         if(hasTypingBubble) {
-                            System.out.println("PRESSED BUTTON REMOVE TYPING BUBBLE");
+
                             hasTypingBubble = false;
                             isTyping = false;
                             adapter.remove(mTypingBubble);
@@ -249,7 +262,6 @@ public class MessageActivity extends AppCompatActivity  {
                             if (userId.equals(otherUserId)) {
                                 otherUserIsOnline = true;
                                 Log.i("Sockets", "Other user Is online");
-                                //TODO: update the front end online indicator here
                                 mActionBar.setSubtitle("online");
                             }
                         } catch (JSONException e) {
@@ -292,6 +304,7 @@ public class MessageActivity extends AppCompatActivity  {
         messagesContainer = (ListView) findViewById(R.id.messagesContainer);
         messageET = (EditText) findViewById(R.id.messageEdit);
         sendBtn = (ImageButton) findViewById(R.id.chatSendButton);
+        mPhotoBtn = (ImageButton) findViewById(R.id.attachPhoto);
 
 
         adapter = new MessageAdapter(MessageActivity.this, new ArrayList<ChatMessage>());
@@ -309,6 +322,9 @@ public class MessageActivity extends AppCompatActivity  {
                 chatMessage.setMessage(messageText);
                 chatMessage.setMe(true);
                 chatMessage.setDate(getCurrentTime());
+//                chatMessage.setMonthDay();
+                //// TODO: 5/26/2017 add monthday to the message
+                //// TODO: 5/26/2017 add created at to db
 
                 messageET.setText("");
 
@@ -321,6 +337,21 @@ public class MessageActivity extends AppCompatActivity  {
                     otherUserId = mConvo.getSenderId();
                 }
                 postMessage(messageText, mUserId, otherUserId);
+            }
+        });
+
+        mPhotoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ChatMessage chatMessage = new ChatMessage();
+                Intent intent = new Intent();
+                // Show only images, no videos or anything else
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_PICK);
+                // Always show the chooser (if there are multiple options available)
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+
+
             }
         });
 
@@ -351,6 +382,24 @@ public class MessageActivity extends AppCompatActivity  {
             }
         });
     }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Uri u = mPhoto.activityResult(requestCode, resultCode, data);
+        final InputStream imageStream;
+
+        ChatMessage photoMsg = new ChatMessage();
+        photoMsg.setMe(true);
+        photoMsg.setPhotoMsg(true);
+        photoMsg.setDate(getCurrentTime());
+        photoMsg.setPhotoSrc(mPhoto.getRealPathFromURIPath(u, this));
+        displayMessage(photoMsg);
+
+
+
+    }
+
 
 
 
@@ -426,30 +475,26 @@ public class MessageActivity extends AppCompatActivity  {
                         ChatMessage msg = chatHistory.get(i);
                         String recipientUser = msg.getRecipientName();
                         String senderUser = msg.getSenderName();
+                        int isPhotoMsg = msg.getIsPhoto();
+
 
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                        SimpleDateFormat output = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        SimpleDateFormat output1 = new SimpleDateFormat("K:mm a");
+                        SimpleDateFormat output2 = new SimpleDateFormat("MMM d ");
+
                         Date d = null;
                         try {
                             d = sdf.parse(msg.getDate());
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
-                        String formattedTime = output.format(d);
-                        System.out.println("NEW TIME " + formattedTime);
-
-
-//                        SimpleDateFormat fromUser = new SimpleDateFormat("dd/MM/yyyy");
-//                        SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
-//
-//                        try {
-//
-//                            String reformattedStr = myFormat.format(fromUser.parse(msg.getDate()));
-//                            System.out.println("NEW TIME " + reformattedStr);
-//                        } catch (ParseException e) {
-//                            e.printStackTrace();
-//                        }
-
+                        String formattedTime1 = output1.format(d);
+                        String formattedTime2 = output2.format(d);
+                        System.out.println("THE MESSAGE " + msg.getMessage());
+                        System.out.println("OLD TIME " + msg.getDate());
+                        System.out.println("NEW TIME " + formattedTime1);
+                        msg.setDate(formattedTime1);
+                        msg.setMonthDay(formattedTime2);
                         if (mUserId.equals(msg.getSenderId())) {
                             msg.setMe(true);
                             mActionBar.setTitle(recipientUser);
@@ -459,11 +504,13 @@ public class MessageActivity extends AppCompatActivity  {
 
                         }
 
-                        String message = msg.getMessage();
-                        // TODO: 5/16/2017  fix datetime format
+                        if(isPhotoMsg == 1) {
+                            msg.setPhotoMsg(true);
+                            msg.setPhotoSrc(msg.getMessage());
+                            System.out.println("is a photo " + msg.getMessage());
+
+                        }
                         displayMessage(msg);
-
-
                     }
                 }
             }
@@ -490,14 +537,6 @@ public class MessageActivity extends AppCompatActivity  {
         Log.i("postMessage", senderId);
         Log.i("postMessage", recipientId);
 
-//        //used to convert JSON to POJO (Plain old java object)
-//        Gson gson = new GsonBuilder().setLenient().create();
-//
-//        //Set up retrofit to make our API call
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl(BASE_URL)
-//                .addConverterFactory(GsonConverterFactory.create(gson))
-//                .build();
 
         JSONObject messageObj = new JSONObject();
         try {
@@ -542,6 +581,9 @@ public class MessageActivity extends AppCompatActivity  {
             displayMessage(mTypingBubble);
             hasTypingBubble = true;
     }
+    
+    
+    
 }
 
 
