@@ -51,12 +51,14 @@ import tcss450.uw.edu.hitmeupv2.WebService.PostPhoto;
 /**
  * Shema Rezanejad
  * Jason Thai
- *
+ * <p>
  * Displays the conversation screen, where you can converse with your friend.
  */
 
-public class MessageActivity extends AppCompatActivity  {
-    /** URL for site */
+public class MessageActivity extends AppCompatActivity {
+    /**
+     * URL for site
+     */
     private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
     private int PICK_IMAGE_REQUEST = 1;
     /**
@@ -65,39 +67,73 @@ public class MessageActivity extends AppCompatActivity  {
 //    private static final String TEST_URL = "https://glacial-citadel-99088.herokuapp.com/";
     private static final String TEST_URL = "http://10.0.2.2:8888/";
 
-    /** String from edit text that sender is writing. */
+    /**
+     * String from edit text that sender is writing.
+     */
     private EditText messageET;
-    /** Container for all messages. */
+    /**
+     * Container for all messages.
+     */
     private ListView messagesContainer;
-    /** Send button. */
+    /**
+     * Send button.
+     */
     private ImageButton sendBtn;
-    /** Message adapter . */
+    /**
+     * Message adapter .
+     */
     private MessageAdapter adapter;
-    /** History of conversations. */
+    /**
+     * History of conversations.
+     */
     private List<ChatMessage> chatHistory;
-    /** Stores the current users id (i.e. the sender) */
+    /**
+     * Stores the current users id (i.e. the sender)
+     */
     private String mUserId;
-    /** The other user that this user is talking to */
+    /**
+     * The other user that this user is talking to
+     */
     private String otherUserId;
-    /** Checking to see if the other user is online. */
+    /**
+     * Checking to see if the other user is online.
+     */
     private boolean otherUserIsOnline;
-    /** Storing the conversation. */
+    /**
+     * Storing the conversation.
+     */
     private Conversation mConvo;
-    /** Storing toolbar so we can set subtitle */
+    /**
+     * Storing toolbar so we can set subtitle
+     */
     private Toolbar mActionBar;
-    /** The socket */
+    /**
+     * The socket
+     */
     private Socket mSocket;
-    /** This activity. */
+    /**
+     * This activity.
+     */
     private Activity mActivity;
-    /** Chatmessage that is added when a chat bubble should be shown */
+    /**
+     * Chatmessage that is added when a chat bubble should be shown
+     */
     private ChatMessage mTypingBubble;
-    /** Check to see if there is a typing bubble already added */
+    /**
+     * Check to see if there is a typing bubble already added
+     */
     private boolean hasTypingBubble;
-    /** Check to see if user is typing. */
+    /**
+     * Check to see if user is typing.
+     */
     private boolean isTyping;
-    /** Button which sends photo */
+    /**
+     * Button which sends photo
+     */
     private ImageButton mPhotoBtn;
-    /** Posts and gets from DB*/
+    /**
+     * Posts and gets from DB
+     */
     private PostPhoto mPhoto;
 
     public MessageActivity() {
@@ -167,7 +203,7 @@ public class MessageActivity extends AppCompatActivity  {
                     try {
                         message = data.getString("message");
                         Log.i("This is the message", message);
-                        if(hasTypingBubble) {
+                        if (hasTypingBubble) {
 
                             hasTypingBubble = false;
                             isTyping = false;
@@ -201,10 +237,10 @@ public class MessageActivity extends AppCompatActivity  {
                 @Override
                 public void run() {
                     System.out.println("is typing " + isTyping);
-                    if(!hasTypingBubble) {
+                    if (!hasTypingBubble) {
                         displayTypingBubble();
                     }
-                    if(hasTypingBubble && isTyping) {
+                    if (hasTypingBubble && isTyping) {
 
                         timer.schedule(
                                 new TimerTask() {
@@ -215,7 +251,7 @@ public class MessageActivity extends AppCompatActivity  {
                                                           public void run() {
                                                               isTyping = false;
                                                               System.out.println("REMOVE BUBBLE");
-                                                              if(hasTypingBubble) {
+                                                              if (hasTypingBubble) {
                                                                   adapter.remove(mTypingBubble);
                                                                   hasTypingBubble = false;
 
@@ -233,8 +269,6 @@ public class MessageActivity extends AppCompatActivity  {
                                 DELAY
                         );
                     }
-
-
 
 
                 }
@@ -397,14 +431,12 @@ public class MessageActivity extends AppCompatActivity  {
         displayMessage(photoMsg);
 
 
-
     }
-
-
 
 
     /**
      * Displaying the message inside the 9 patch image.
+     *
      * @param message the string being sent
      */
     public void displayMessage(ChatMessage message) {
@@ -422,9 +454,9 @@ public class MessageActivity extends AppCompatActivity  {
     }
 
 
-
     /**
      * Gets the current time from Simple date format.
+     *
      * @return a time
      */
     public String getCurrentTime() {
@@ -436,6 +468,7 @@ public class MessageActivity extends AppCompatActivity  {
 
     /**
      * Getter for chat history.
+     *
      * @return list of conversation
      */
     private void getChatHistory() {
@@ -465,6 +498,8 @@ public class MessageActivity extends AppCompatActivity  {
         Call<List<ChatMessage>> call = api.getMessages(mUserId, otherUserId);
         call.enqueue(new Callback<List<ChatMessage>>() {
             @Override
+
+
             public void onResponse(Call<List<ChatMessage>> call, Response<List<ChatMessage>> response) {
                 System.out.println(response);
                 if (response.isSuccessful()) {
@@ -479,8 +514,10 @@ public class MessageActivity extends AppCompatActivity  {
 
 
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                        SimpleDateFormat output1 = new SimpleDateFormat("K:mm a");
+                        SimpleDateFormat output1 = new SimpleDateFormat("HH:mm a");
                         SimpleDateFormat output2 = new SimpleDateFormat("MMM d ");
+
+//                        System.
 
                         Date d = null;
                         try {
@@ -504,7 +541,7 @@ public class MessageActivity extends AppCompatActivity  {
 
                         }
 
-                        if(isPhotoMsg == 1) {
+                        if (isPhotoMsg == 1) {
                             msg.setPhotoMsg(true);
                             msg.setPhotoSrc(msg.getMessage());
                             System.out.println("is a photo " + msg.getMessage());
@@ -528,8 +565,9 @@ public class MessageActivity extends AppCompatActivity  {
      * Posts the message sent by user to the server. Also displays
      * the message on the frontend. Use sockets to display in
      * real time.
-     * @param message the message being posted
-     * @param senderId the person who is sending the message
+     *
+     * @param message     the message being posted
+     * @param senderId    the person who is sending the message
      * @param recipientId the person recieving the message
      */
     public void postMessage(String message, String senderId, String recipientId) {
@@ -573,17 +611,16 @@ public class MessageActivity extends AppCompatActivity  {
      * when the other user is typing.
      */
     private void displayTypingBubble() {
-            isTyping = true;
-            mTypingBubble.setRecipientTyping(true);
-            mTypingBubble.setMessage("");
-            mTypingBubble.setDate(null);
-            mTypingBubble.setMe(false);
-            displayMessage(mTypingBubble);
-            hasTypingBubble = true;
+        isTyping = true;
+        mTypingBubble.setRecipientTyping(true);
+        mTypingBubble.setMessage("");
+        mTypingBubble.setDate(null);
+        mTypingBubble.setMe(false);
+        displayMessage(mTypingBubble);
+        hasTypingBubble = true;
     }
-    
-    
-    
+
+
 }
 
 
