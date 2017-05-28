@@ -34,8 +34,14 @@ public class LoginActivity extends AppCompatActivity {
     /*
      * Production server
      */
+
 //    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
     /** Use this if you want to test on a local server with emulator */
+
+    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+    /*
+     * Use this if you want to test on a local server with emulator
+     */
     private static final String TEST_URL = "http://10.0.2.2:8888/";
     /** Loading circle, for when server is sleeping. */
     private ProgressDialog mLoadingScreen;
@@ -118,7 +124,7 @@ public class LoginActivity extends AppCompatActivity {
 
             //Set up retrofit to make our API call
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(TEST_URL)
+                    .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
 
