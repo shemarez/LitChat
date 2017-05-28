@@ -117,7 +117,7 @@ public class MessageActivity extends AppCompatActivity  {
         mActionBar.setSubtitle("offline");
 
         try {
-            mSocket = IO.socket(TEST_URL);
+            mSocket = IO.socket(BASE_URL);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -397,7 +397,7 @@ public class MessageActivity extends AppCompatActivity  {
 
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(TEST_URL)
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

@@ -44,8 +44,8 @@ import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
 public class HomepageActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         AdapterView.OnItemClickListener {
     /** URL for site */
-//    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
-    private static final String BASE_URL = "http://10.0.2.2:8888/";
+    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+    //private static final String BASE_URL = "http://10.0.2.2:8888/";
 
     private static final String TEST_URL = "http://10.0.2.2:8888/";
     /** List of friends.*/
