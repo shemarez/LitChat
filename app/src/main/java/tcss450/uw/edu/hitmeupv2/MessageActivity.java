@@ -479,7 +479,7 @@ public class MessageActivity extends AppCompatActivity  {
 
 
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-                        SimpleDateFormat output1 = new SimpleDateFormat("K:mm a");
+                        SimpleDateFormat output1 = new SimpleDateFormat("HH:mm a");
                         SimpleDateFormat output2 = new SimpleDateFormat("MMM d ");
 
                         Date d = null;
