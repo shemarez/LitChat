@@ -116,9 +116,6 @@ public class SignupActivity extends AppCompatActivity {
         snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
         ask(findViewById(R.id.register));
         queryCurrUsers();
-
-
-
     }
 
     /**

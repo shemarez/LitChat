@@ -34,6 +34,10 @@ public class LoginActivity extends AppCompatActivity {
     /*
      * Production server
      */
+
+    /*
+     * Use this if you want to test on a local server with emulator
+     */
     private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
 
     /** Use this if you want to test on a local server with emulator */

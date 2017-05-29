@@ -28,7 +28,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
+import java.io.File;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,53 +51,92 @@ import tcss450.uw.edu.hitmeupv2.WebService.PostPhoto;
 /**
  * Shema Rezanejad
  * Jason Thai
- *
+ * <p>
  * Displays the conversation screen, where you can converse with your friend.
  */
 
-public class MessageActivity extends AppCompatActivity  {
-    /** URL for site */
-    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
-    private int PICK_IMAGE_REQUEST = 1;
+public class MessageActivity extends AppCompatActivity {
     /**
-     * Use this if you want to test on a local server with emulator
+     * URL for site
      */
+
     private static final String TEST_URL = "http://10.0.2.2:8888/";
 
-    /** String from edit text that sender is writing. */
+    private static final String BASE_URL = "http://10.0.2.2:8888/";
+
+    //    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+    private int PICK_IMAGE_REQUEST = 1;
+
+
+    /**
+     * String from edit text that sender is writing.
+     */
     private EditText messageET;
-    /** Container for all messages. */
+    /**
+     * Container for all messages.
+     */
     private ListView messagesContainer;
-    /** Send button. */
+    /**
+     * Send button.
+     */
     private ImageButton sendBtn;
-    /** Message adapter . */
+    /**
+     * Message adapter .
+     */
     private MessageAdapter adapter;
-    /** History of conversations. */
+    /**
+     * History of conversations.
+     */
     private List<ChatMessage> chatHistory;
-    /** Stores the current users id (i.e. the sender) */
+    /**
+     * Stores the current users id (i.e. the sender)
+     */
     private String mUserId;
-    /** The other user that this user is talking to */
+    /**
+     * The other user that this user is talking to
+     */
     private String otherUserId;
-    /** Checking to see if the other user is online. */
+    /**
+     * Checking to see if the other user is online.
+     */
     private boolean otherUserIsOnline;
-    /** Storing the conversation. */
+    /**
+     * Storing the conversation.
+     */
     private Conversation mConvo;
-    /** Storing toolbar so we can set subtitle */
+    /**
+     * Storing toolbar so we can set subtitle
+     */
     private Toolbar mActionBar;
-    /** The socket */
+    /**
+     * The socket
+     */
     private Socket mSocket;
-    /** This activity. */
+    /**
+     * This activity.
+     */
     private Activity mActivity;
-    /** Chatmessage that is added when a chat bubble should be shown */
+    /**
+     * Chatmessage that is added when a chat bubble should be shown
+     */
     private ChatMessage mTypingBubble;
-    /** Check to see if there is a typing bubble already added */
+    /**
+     * Check to see if there is a typing bubble already added
+     */
     private boolean hasTypingBubble;
-    /** Check to see if user is typing. */
+    /**
+     * Check to see if user is typing.
+     */
     private boolean isTyping;
-    /** Button which sends photo */
+    /**
+     * Button which sends photo
+     */
     private ImageButton mPhotoBtn;
-    /** Posts and gets from DB*/
+    /**
+     * Posts and gets from DB
+     */
     private PostPhoto mPhoto;
+    private String mPhotoPath;
 
     public MessageActivity() {
         chatHistory = new ArrayList<>();
@@ -120,14 +159,15 @@ public class MessageActivity extends AppCompatActivity  {
         mTypingBubble = new ChatMessage();
 
         initControls();
-        getChatHistory();
 
         //  must update once communicating with server
         mActionBar = (Toolbar) findViewById(R.id.myMsgToolbar);
 
         setSupportActionBar(mActionBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
         mActionBar.setSubtitle("offline");
+        getChatHistory();
 
         try {
             mSocket = IO.socket(BASE_URL);
@@ -165,8 +205,9 @@ public class MessageActivity extends AppCompatActivity  {
                     String message;
                     try {
                         message = data.getString("message");
+                        ChatMessage chatMessage = new ChatMessage();
                         Log.i("This is the message", message);
-                        if(hasTypingBubble) {
+                        if (hasTypingBubble) {
 
                             hasTypingBubble = false;
                             isTyping = false;
@@ -174,16 +215,31 @@ public class MessageActivity extends AppCompatActivity  {
                             adapter.notifyDataSetChanged();
                             scroll();
                         }
+
+                        // checking to see if it is a photo
+//                        if (data.getBoolean("isPhoto")) {
+//                            System.out.println("the photo path " + message);
+//                            chatMessage.setPhotoMsg(true);  // boolean that we check for in message adapter
+//                            chatMessage.setPhotoFile(new File(message)); // sets the source of the
+//                            chatMessage.setDate(getCurrentTime());
+//
+//                        } else {
+                            // render here
+                            chatMessage.setMessage(message);
+                            chatMessage.setDate(getCurrentTime());
+
+//                        }
+
+                        displayMessage(chatMessage);
+
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                         return;
                     }
 
-                    ChatMessage chatMessage = new ChatMessage();
-                    chatMessage.setMessage(message);
-                    chatMessage.setDate(getCurrentTime());
+
                     // add the message to view
-                    displayMessage(chatMessage);
 
                 }
             });
@@ -200,39 +256,39 @@ public class MessageActivity extends AppCompatActivity  {
                 @Override
                 public void run() {
                     System.out.println("is typing " + isTyping);
-                    if(!hasTypingBubble) {
+                    if (!hasTypingBubble) {
                         displayTypingBubble();
                     }
-                    if(hasTypingBubble && isTyping) {
+                    if (hasTypingBubble && isTyping) {
 
                         timer.schedule(
-                            new TimerTask() {
-                                @Override
-                                public void run() {
-                                    runOnUiThread(new Runnable() {
-                                          @Override
-                                          public void run() {
-                                              isTyping = false;
-                                              System.out.println("REMOVE BUBBLE");
-                                              if(hasTypingBubble) {
-                                                  adapter.remove(mTypingBubble);
-                                                  hasTypingBubble = false;
+                                new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                isTyping = false;
+                                                System.out.println("REMOVE BUBBLE");
+                                                if (hasTypingBubble) {
+                                                    adapter.remove(mTypingBubble);
+                                                    hasTypingBubble = false;
 
-                                              }
-                                              adapter.notifyDataSetChanged();
-                                              scroll();
-                                              Log.i(MessageActivity.class.getSimpleName(), "User stopped typing");
+                                                }
+                                                adapter.notifyDataSetChanged();
+                                                scroll();
+                                                Log.i(MessageActivity.class.getSimpleName(), "User stopped typing");
 
-                                          }
-                                    });
+                                            }
+                                        });
 
-                                }
-                            }, DELAY);
+                                    }
+                                }, DELAY);
                     }
                 }
             });
-
         }
+
     };
 
     private Emitter.Listener usersOnline = new Emitter.Listener() {
@@ -297,6 +353,7 @@ public class MessageActivity extends AppCompatActivity  {
         messageET = (EditText) findViewById(R.id.messageEdit);
         sendBtn = (ImageButton) findViewById(R.id.chatSendButton);
         mPhotoBtn = (ImageButton) findViewById(R.id.attachPhoto);
+        final MessageActivity that = this;
 
 
         adapter = new MessageAdapter(MessageActivity.this, new ArrayList<ChatMessage>());
@@ -328,10 +385,12 @@ public class MessageActivity extends AppCompatActivity  {
                 } else {
                     otherUserId = mConvo.getSenderId();
                 }
-                postMessage(messageText, mUserId, otherUserId);
+                postMessage(messageText, mUserId, otherUserId, false);
             }
         });
 
+
+        // WHEN CAMERA GET PRESSED
         mPhotoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -340,9 +399,12 @@ public class MessageActivity extends AppCompatActivity  {
                 // Show only images, no videos or anything else
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_PICK);
+                mPhoto.checkPermissions(that);  // checking permissions
                 // Always show the chooser (if there are multiple options available)
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+                // sendPhoto is called in this method
 
+                // launch chooser
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
 
             }
         });
@@ -379,24 +441,40 @@ public class MessageActivity extends AppCompatActivity  {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Uri u = mPhoto.activityResult(requestCode, resultCode, data);
-        final InputStream imageStream;
+        mPhotoPath = mPhoto.getRealPathFromURIPath(u, this);
+//        postMessage(mPhotoPath, mUserId, otherUserId, true);
 
+
+        // creates and displays the photo
         ChatMessage photoMsg = new ChatMessage();
         photoMsg.setMe(true);
         photoMsg.setPhotoMsg(true);
         photoMsg.setDate(getCurrentTime());
-        photoMsg.setPhotoSrc(mPhoto.getRealPathFromURIPath(u, this));
+        String thePath = mPhoto.getRealPathFromURIPath(u, this);
+//        photoMsg.setPhotoSrc(mPhoto.getRealPathFromURIPath(u, this));
+        File f = new File(thePath);
+        System.out.println("NEW PIC MAIL " +f.toString());
+        photoMsg.setPhotoFile(f);  // SET SO YOU CAN ACCESS IN MESSAGE ADAPTER
         displayMessage(photoMsg);
 
+        String otherUserId;
+        if (mUserId.equals(mConvo.getSenderId())) {
+            otherUserId = mConvo.getRecipientId();
+        } else {
+            otherUserId = mConvo.getSenderId();
+        }
 
+
+
+        mPhoto.sendPhoto(thePath, mUserId, otherUserId);
+        scroll();
 
     }
 
 
-
-
     /**
      * Displaying the message inside the 9 patch image.
+     *
      * @param message the string being sent
      */
     public void displayMessage(ChatMessage message) {
@@ -414,9 +492,9 @@ public class MessageActivity extends AppCompatActivity  {
     }
 
 
-
     /**
      * Gets the current time from Simple date format.
+     *
      * @return a time
      */
     public String getCurrentTime() {
@@ -428,6 +506,7 @@ public class MessageActivity extends AppCompatActivity  {
 
     /**
      * Getter for chat history.
+     *
      * @return list of conversation
      */
     private void getChatHistory() {
@@ -460,6 +539,7 @@ public class MessageActivity extends AppCompatActivity  {
             public void onResponse(Call<List<ChatMessage>> call, Response<List<ChatMessage>> response) {
                 System.out.println(response);
                 if (response.isSuccessful()) {
+
                     chatHistory = response.body();
 
                     for (int i = 0; i < chatHistory.size(); i++) {
@@ -469,10 +549,12 @@ public class MessageActivity extends AppCompatActivity  {
                         String senderUser = msg.getSenderName();
                         int isPhotoMsg = msg.getIsPhoto();
 
-
+                        System.out.println("IS PHOTO MSG " + isPhotoMsg);
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                         SimpleDateFormat output1 = new SimpleDateFormat("HH:mm a");
                         SimpleDateFormat output2 = new SimpleDateFormat("MMM d ");
+
+//                        System.
 
                         Date d = null;
                         try {
@@ -496,13 +578,21 @@ public class MessageActivity extends AppCompatActivity  {
 
                         }
 
-                        if(isPhotoMsg == 1) {
+
+                        if (isPhotoMsg == 1) {
                             msg.setPhotoMsg(true);
                             msg.setPhotoSrc(msg.getMessage());
-                            System.out.println("is a photo " + msg.getMessage());
+//                            System.out.println("is a photo " + msg.getMessage());
 
                         }
                         displayMessage(msg);
+                    }
+
+                    if (mActionBar.getTitle().equals("LitChat") && getIntent().getExtras().getString("actionBarTitle") != null) {
+
+                        System.out.println("the recipients username " + getIntent().getExtras().getString("actionBarTitle"));
+                        mActionBar.setTitle(getIntent().getExtras().getString("actionBarTitle"));
+
                     }
                 }
             }
@@ -513,6 +603,8 @@ public class MessageActivity extends AppCompatActivity  {
                 t.printStackTrace();
             }
         });
+
+
     }
 
 
@@ -520,14 +612,16 @@ public class MessageActivity extends AppCompatActivity  {
      * Posts the message sent by user to the server. Also displays
      * the message on the frontend. Use sockets to display in
      * real time.
-     * @param message the message being posted
-     * @param senderId the person who is sending the message
+     *
+     * @param message     the message being posted
+     * @param senderId    the person who is sending the message
      * @param recipientId the person recieving the message
      */
-    public void postMessage(String message, String senderId, String recipientId) {
+    public void postMessage(String message, String senderId, String recipientId, boolean isPhoto) {
         Log.i("postMessage", message);
         Log.i("postMessage", senderId);
         Log.i("postMessage", recipientId);
+        System.out.println("postMessage " + isPhoto);
 
 
         JSONObject messageObj = new JSONObject();
@@ -535,10 +629,33 @@ public class MessageActivity extends AppCompatActivity  {
             messageObj.put("message", message);
             messageObj.put("userId", senderId);
             messageObj.put("recipientId", recipientId);
+            messageObj.put("isPhoto", isPhoto);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+
+
+        if (isPhoto) {
+            String otherUserId;
+            if (mUserId.equals(mConvo.getSenderId())) {
+                otherUserId = mConvo.getRecipientId();
+            } else {
+                otherUserId = mConvo.getSenderId();
+            }
+
+            ChatMessage newPhoto = new ChatMessage();
+            newPhoto.setMe(true);
+            newPhoto.setPhotoMsg(true);
+            newPhoto.setPhotoFile(new File(message));
+
+            displayMessage(newPhoto);
+
+            mPhoto.sendPhoto(message, mUserId, otherUserId);
+
+        }
+
+        // call mphoto.sendMessage here
 
         mSocket.emit("sendMessage", messageObj);
 
@@ -565,17 +682,14 @@ public class MessageActivity extends AppCompatActivity  {
      * when the other user is typing.
      */
     private void displayTypingBubble() {
-            isTyping = true;
-            mTypingBubble.setRecipientTyping(true);
-            mTypingBubble.setMessage("");
-            mTypingBubble.setDate(null);
-            mTypingBubble.setMe(false);
-            displayMessage(mTypingBubble);
-            hasTypingBubble = true;
+        isTyping = true;
+        mTypingBubble.setRecipientTyping(true);
+        mTypingBubble.setMessage("");
+        mTypingBubble.setDate(null);
+        mTypingBubble.setMe(false);
+        displayMessage(mTypingBubble);
+        hasTypingBubble = true;
     }
-    
-    
-    
 }
 
 

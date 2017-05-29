@@ -171,7 +171,7 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
         generateProfile();
 
 
-        String imgURL = TEST_URL +  "public/" + mProfileImgPath;
+        String imgURL = BASE_URL +  "public/" + mProfileImgPath;
 
         System.out.println("img url " +  imgURL);
         if(mProfileImgPath != null) {
