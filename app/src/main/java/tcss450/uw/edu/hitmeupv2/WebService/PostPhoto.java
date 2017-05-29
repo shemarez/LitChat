@@ -115,7 +115,7 @@ public class PostPhoto {
         Gson gson = new GsonBuilder().setLenient().create();
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(TEST_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -160,7 +160,7 @@ public class PostPhoto {
         Gson gson = new GsonBuilder().setLenient().create();
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(TEST_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -204,7 +204,7 @@ public class PostPhoto {
 
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(TEST_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
