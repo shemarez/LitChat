@@ -92,9 +92,21 @@ public interface MessagingAPI {
     Call<List<User>> postProfilePic(@Part MultipartBody.Part avatar, @Path("userId") String userId);
 
     /**
-     * Get all usernames
+     * Sends a photo to the recipient
+     * @param photo the file
+     * @param senderId the person sending the photo
+     * @param recipientId person receiving photo
+     * @return user
+     */
+    @Multipart
+    @POST("send-photo/{senderId}/{recipientId}")
+    Call<List<User>> sendPhoto(@Part MultipartBody.Part photo, @Path("senderId") String senderId, @Path("recipientId") String recipientId);
+
+
+    /**
+     * Get all usernames. For validation purposes.
      *
-     * @return a username
+     * @return all users
      */
     @GET("getUsers/")
     Call<List<User>> getUsers();

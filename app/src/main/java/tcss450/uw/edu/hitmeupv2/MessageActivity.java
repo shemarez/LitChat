@@ -28,7 +28,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
+import java.io.File;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,7 +61,7 @@ public class MessageActivity extends AppCompatActivity {
      */
     private static final String BASE_URL = "http://10.0.2.2:8888/";
 
-//    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+    //    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
     private int PICK_IMAGE_REQUEST = 1;
 
 
@@ -133,6 +133,7 @@ public class MessageActivity extends AppCompatActivity {
      * Posts and gets from DB
      */
     private PostPhoto mPhoto;
+    private String mPhotoPath;
 
     public MessageActivity() {
         chatHistory = new ArrayList<>();
@@ -155,14 +156,15 @@ public class MessageActivity extends AppCompatActivity {
         mTypingBubble = new ChatMessage();
 
         initControls();
-        getChatHistory();
 
         //  must update once communicating with server
         mActionBar = (Toolbar) findViewById(R.id.myMsgToolbar);
 
         setSupportActionBar(mActionBar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
         mActionBar.setSubtitle("offline");
+        getChatHistory();
 
         try {
             mSocket = IO.socket(BASE_URL);
@@ -200,6 +202,7 @@ public class MessageActivity extends AppCompatActivity {
                     String message;
                     try {
                         message = data.getString("message");
+                        ChatMessage chatMessage = new ChatMessage();
                         Log.i("This is the message", message);
                         if (hasTypingBubble) {
 
@@ -209,16 +212,31 @@ public class MessageActivity extends AppCompatActivity {
                             adapter.notifyDataSetChanged();
                             scroll();
                         }
+
+                        // checking to see if it is a photo
+//                        if (data.getBoolean("isPhoto")) {
+//                            System.out.println("the photo path " + message);
+//                            chatMessage.setPhotoMsg(true);  // boolean that we check for in message adapter
+//                            chatMessage.setPhotoFile(new File(message)); // sets the source of the
+//                            chatMessage.setDate(getCurrentTime());
+//
+//                        } else {
+                            // render here
+                            chatMessage.setMessage(message);
+                            chatMessage.setDate(getCurrentTime());
+
+//                        }
+
+                        displayMessage(chatMessage);
+
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                         return;
                     }
 
-                    ChatMessage chatMessage = new ChatMessage();
-                    chatMessage.setMessage(message);
-                    chatMessage.setDate(getCurrentTime());
+
                     // add the message to view
-                    displayMessage(chatMessage);
 
                 }
             });
@@ -337,6 +355,7 @@ public class MessageActivity extends AppCompatActivity {
         messageET = (EditText) findViewById(R.id.messageEdit);
         sendBtn = (ImageButton) findViewById(R.id.chatSendButton);
         mPhotoBtn = (ImageButton) findViewById(R.id.attachPhoto);
+        final MessageActivity that = this;
 
 
         adapter = new MessageAdapter(MessageActivity.this, new ArrayList<ChatMessage>());
@@ -368,10 +387,12 @@ public class MessageActivity extends AppCompatActivity {
                 } else {
                     otherUserId = mConvo.getSenderId();
                 }
-                postMessage(messageText, mUserId, otherUserId);
+                postMessage(messageText, mUserId, otherUserId, false);
             }
         });
 
+
+        // WHEN CAMERA GET PRESSED
         mPhotoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -380,9 +401,12 @@ public class MessageActivity extends AppCompatActivity {
                 // Show only images, no videos or anything else
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_PICK);
+                mPhoto.checkPermissions(that);  // checking permissions
                 // Always show the chooser (if there are multiple options available)
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+                // sendPhoto is called in this method
 
+                // launch chooser
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
 
             }
         });
@@ -419,15 +443,33 @@ public class MessageActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Uri u = mPhoto.activityResult(requestCode, resultCode, data);
-        final InputStream imageStream;
+        mPhotoPath = mPhoto.getRealPathFromURIPath(u, this);
+//        postMessage(mPhotoPath, mUserId, otherUserId, true);
 
+
+        // creates and displays the photo
         ChatMessage photoMsg = new ChatMessage();
         photoMsg.setMe(true);
         photoMsg.setPhotoMsg(true);
         photoMsg.setDate(getCurrentTime());
-        photoMsg.setPhotoSrc(mPhoto.getRealPathFromURIPath(u, this));
+        String thePath = mPhoto.getRealPathFromURIPath(u, this);
+//        photoMsg.setPhotoSrc(mPhoto.getRealPathFromURIPath(u, this));
+        File f = new File(thePath);
+        System.out.println("NEW PIC MAIL " +f.toString());
+        photoMsg.setPhotoFile(f);  // SET SO YOU CAN ACCESS IN MESSAGE ADAPTER
         displayMessage(photoMsg);
 
+        String otherUserId;
+        if (mUserId.equals(mConvo.getSenderId())) {
+            otherUserId = mConvo.getRecipientId();
+        } else {
+            otherUserId = mConvo.getSenderId();
+        }
+
+
+
+        mPhoto.sendPhoto(thePath, mUserId, otherUserId);
+        scroll();
 
     }
 
@@ -496,11 +538,10 @@ public class MessageActivity extends AppCompatActivity {
         Call<List<ChatMessage>> call = api.getMessages(mUserId, otherUserId);
         call.enqueue(new Callback<List<ChatMessage>>() {
             @Override
-
-
             public void onResponse(Call<List<ChatMessage>> call, Response<List<ChatMessage>> response) {
                 System.out.println(response);
                 if (response.isSuccessful()) {
+
                     chatHistory = response.body();
 
                     for (int i = 0; i < chatHistory.size(); i++) {
@@ -510,7 +551,7 @@ public class MessageActivity extends AppCompatActivity {
                         String senderUser = msg.getSenderName();
                         int isPhotoMsg = msg.getIsPhoto();
 
-
+                        System.out.println("IS PHOTO MSG " + isPhotoMsg);
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                         SimpleDateFormat output1 = new SimpleDateFormat("HH:mm a");
                         SimpleDateFormat output2 = new SimpleDateFormat("MMM d ");
@@ -539,13 +580,21 @@ public class MessageActivity extends AppCompatActivity {
 
                         }
 
+
                         if (isPhotoMsg == 1) {
                             msg.setPhotoMsg(true);
                             msg.setPhotoSrc(msg.getMessage());
-                            System.out.println("is a photo " + msg.getMessage());
+//                            System.out.println("is a photo " + msg.getMessage());
 
                         }
                         displayMessage(msg);
+                    }
+
+                    if (mActionBar.getTitle().equals("LitChat") && getIntent().getExtras().getString("actionBarTitle") != null) {
+
+                        System.out.println("the recipients username " + getIntent().getExtras().getString("actionBarTitle"));
+                        mActionBar.setTitle(getIntent().getExtras().getString("actionBarTitle"));
+
                     }
                 }
             }
@@ -556,6 +605,8 @@ public class MessageActivity extends AppCompatActivity {
                 t.printStackTrace();
             }
         });
+
+
     }
 
 
@@ -568,10 +619,11 @@ public class MessageActivity extends AppCompatActivity {
      * @param senderId    the person who is sending the message
      * @param recipientId the person recieving the message
      */
-    public void postMessage(String message, String senderId, String recipientId) {
+    public void postMessage(String message, String senderId, String recipientId, boolean isPhoto) {
         Log.i("postMessage", message);
         Log.i("postMessage", senderId);
         Log.i("postMessage", recipientId);
+        System.out.println("postMessage " + isPhoto);
 
 
         JSONObject messageObj = new JSONObject();
@@ -579,10 +631,33 @@ public class MessageActivity extends AppCompatActivity {
             messageObj.put("message", message);
             messageObj.put("userId", senderId);
             messageObj.put("recipientId", recipientId);
+            messageObj.put("isPhoto", isPhoto);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+
+
+        if (isPhoto) {
+            String otherUserId;
+            if (mUserId.equals(mConvo.getSenderId())) {
+                otherUserId = mConvo.getRecipientId();
+            } else {
+                otherUserId = mConvo.getSenderId();
+            }
+
+            ChatMessage newPhoto = new ChatMessage();
+            newPhoto.setMe(true);
+            newPhoto.setPhotoMsg(true);
+            newPhoto.setPhotoFile(new File(message));
+
+            displayMessage(newPhoto);
+
+            mPhoto.sendPhoto(message, mUserId, otherUserId);
+
+        }
+
+        // call mphoto.sendMessage here
 
         mSocket.emit("sendMessage", messageObj);
 

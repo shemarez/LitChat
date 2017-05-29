@@ -13,7 +13,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -21,6 +23,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import tcss450.uw.edu.hitmeupv2.ListItem.RowItem;
+import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
 import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
 import tcss450.uw.edu.hitmeupv2.WebService.User;
 
@@ -34,8 +37,8 @@ import tcss450.uw.edu.hitmeupv2.WebService.User;
 
 public class FriendsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     /** URL of app.*/
-//    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
-    private static final String BASE_URL = "http://10.0.2.2:8888/";
+    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+//    private static final String BASE_URL = "http://10.0.2.2:8888/";
 
     /** List of friends/contacts.*/
     private ArrayList<RowItem> mFriendList = new ArrayList<RowItem>();
@@ -43,6 +46,7 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
     private  String mUserId;
     /** Stores path of user profile */
     private String mProfileImgPath;
+    private HashMap<Integer, User> mFriendMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,7 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
         setContentView(R.layout.activity_friends);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mFriendMap = new HashMap<>();
         //Call the getConversations method from the interface that we created
         mUserId = getIntent().getExtras().getString("userId");
         System.out.println("userId: " + mUserId);
@@ -126,6 +131,8 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
                         String friend = friends.get(i).getUsername();
                         String imgPath = friends.get(i).getProfileImgPath();
 
+                        mFriendMap.put(i, friends.get(i));
+
                         if(imgPath != null) {
                             imgPath = BASE_URL +  "public/" + imgPath;
                             System.out.println(imgPath);
@@ -165,6 +172,26 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(this, MessageActivity.class);
+        Bundle extras = new Bundle(); // for passing multiple values
+
+        for (Map.Entry<Integer, User> entry : mFriendMap.entrySet()) {
+            int key = entry.getKey();
+
+
+            if (key == position) {
+                intent.putExtra("userId", mUserId);
+                Conversation newConvo = new Conversation();
+                newConvo.setRecipientId(entry.getValue().getUserId());
+                newConvo.setSenderId(mUserId);
+                newConvo.setUsername(entry.getValue().getUsername());
+                intent.putExtra("Conversation", newConvo);
+                intent.putExtra("actionBarTitle", entry.getValue().getUsername());
+
+//                entry.getValue().
+            }
+        }
+
+        intent.putExtras(extras);
         startActivity(intent);
     }
 

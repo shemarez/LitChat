@@ -230,7 +230,11 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                 profileIntent.putExtra("userId", mUserId);
                 startActivity(profileIntent);
 
-              }
+              } else if(id == R.id.nav_share) {
+                Intent intent = new Intent(this, InviteFriends.class);
+                intent.putExtra("userId", mUserId);
+                startActivity(intent);
+            }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.eyalbira.loadingdots.LoadingDots;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.List;
 
 import tcss450.uw.edu.hitmeupv2.WebService.ChatMessage;
@@ -82,7 +83,8 @@ public class MessageAdapter extends BaseAdapter {
         boolean myMsg = chatMessage.getIsme() ;//Just a dummy check to simulate whether it me or other sender
         boolean isTyping = chatMessage.getRecipientTyping();
         boolean isPhoto = chatMessage.isPhotoMsg();
-        String uri = chatMessage.getPhotoSrc();
+        String photoSrc = chatMessage.getPhotoSrc();
+        File photoFile = chatMessage.getPhotoFile();
         setAlignment(holder, myMsg);
 
         if(isTyping) {
@@ -92,14 +94,15 @@ public class MessageAdapter extends BaseAdapter {
 
         }
 
-        if(isPhoto) {
-            System.out.println("THE URI " + TEST_URL +"public/" +uri);
-//            InputStream imageStream = getContentResolver().openInputStream(u);
-//            final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-//            holder.sentPhoto.setImageBitmap(selectedImage);
-//            File f = new File(TEST_URL+ "/public/" + uri);
-//            Picasso.with(context).load(f).into(holder.sentPhoto);
+        holder.txtMessage.setText(chatMessage.getMessage());
+        holder.txtInfo.setText(chatMessage.getDate());
+        holder.txtMonthDay.setText((chatMessage.getMonthDay()));
 
+
+        // if it is a url do this
+        if(photoSrc != null && isPhoto) {
+            System.out.println("in photosrc");
+            System.out.println("THE URI " + TEST_URL +"public/" +photoSrc);
             Picasso.Builder builder = new Picasso.Builder(context);
             builder.listener(new Picasso.Listener()
             {
@@ -109,14 +112,40 @@ public class MessageAdapter extends BaseAdapter {
                     exception.printStackTrace();
                 }
             });
-            builder.build().load(TEST_URL+ "/public/" + uri).into(holder.sentPhoto);
+            builder.build().load(TEST_URL + "public/" + photoSrc).into(holder.sentPhoto);
+//            holder.txtMessage.setText("");
             holder.sentPhoto.setVisibility(View.VISIBLE);
+            photoSrc = null;
+        } else {
+            holder.sentPhoto.setVisibility(View.GONE);
         }
 
 
-        holder.txtMessage.setText(chatMessage.getMessage());
-        holder.txtInfo.setText(chatMessage.getDate());
-        holder.txtMonthDay.setText((chatMessage.getMonthDay()));
+        // if it is a file from within android dir do this
+        if(photoFile != null && isPhoto) {
+            System.out.println("in photofile");
+            Picasso.with(context).load(photoFile).into(holder.sentPhoto);
+            Picasso.Builder builder = new Picasso.Builder(context);
+            builder.listener(new Picasso.Listener()
+            {
+                @Override
+                public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception)
+                {
+                    exception.printStackTrace();
+                }
+            });
+            builder.build().load(photoFile).into(holder.sentPhoto);
+//            holder.txtMessage.setText("");
+            holder.sentPhoto.setVisibility(View.VISIBLE);
+
+        }
+        else if(!isPhoto) {
+            holder.sentPhoto.setVisibility(View.GONE);
+
+        }
+
+
+
 
 
         return convertView;

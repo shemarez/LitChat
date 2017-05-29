@@ -1,5 +1,7 @@
 package tcss450.uw.edu.hitmeupv2.WebService;
 
+import java.io.File;
+
 /**
  * Created by Shema on 4/20/2017.
  */
@@ -27,8 +29,10 @@ public class ChatMessage {
     private String monthDay;
     /** Check to see if message is photo message */
     private boolean isPhotoMsg;
-    /** Sets the imageview src for photo message */
+    /** Sets the imageview src for photo message, for existing photos. */
     private String photoSrc;
+    /** Sets the imageview src for photo message, for new photos. */
+    private File photoFile;
     /** Checks to see if it is a photo from DB */
     private int isPhoto;
 
@@ -169,6 +173,14 @@ public class ChatMessage {
 
     public void setPhotoSrc(String photoSrc) {
         this.photoSrc = photoSrc;
+    }
+
+    public void setPhotoFile(File photoSrc) {
+        this.photoFile = photoSrc;
+    }
+
+    public File getPhotoFile() {
+        return photoFile;
     }
 
     public int getIsPhoto() {

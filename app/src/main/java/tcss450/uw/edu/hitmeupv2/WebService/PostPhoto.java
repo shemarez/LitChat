@@ -107,21 +107,15 @@ public class PostPhoto {
      * @param path the file path name
      */
     public void postProfilePic(String path, String userId) {
-//        String path = "file//:" + thePath;
-//        File file = null;
-
-        // Get the file instance
         File file = new File(path);
         RequestBody mFile = RequestBody.create(MediaType.parse("image/*"), file);
-        MultipartBody.Part avatar = MultipartBody.Part.createFormData("avatar", file.getName(), mFile);
+        MultipartBody.Part avatar = MultipartBody.Part.createFormData("photo", file.getName(), mFile);
 
         //used to convert JSON to POJO (Plain old java object)
         Gson gson = new GsonBuilder().setLenient().create();
-
-
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(TEST_URL)
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -130,6 +124,51 @@ public class PostPhoto {
 
         //Call the login interface that we created
         Call<List<User>> call = api.postProfilePic(avatar, userId);
+
+//        //Make API call, handle success and error
+        call.enqueue(new Callback<List<User>>() {
+
+            @Override
+            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+
+                System.out.println("IN ON RESPONSE");
+                if (response.isSuccessful()) {
+
+                    Log.i("ProfileActivity", response.toString());
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<List<User>> call, Throwable t) {
+                System.out.println("fail");
+                t.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * Post the photo to the server.
+     * @param path the file path name
+     */
+    public void sendPhoto(String path, String senderId, String recipientId) {
+        File file = new File(path);
+        RequestBody mFile = RequestBody.create(MediaType.parse("image/*"), file);
+        MultipartBody.Part photo = MultipartBody.Part.createFormData("photo", file.getName(), mFile);
+
+        //used to convert JSON to POJO (Plain old java object)
+        Gson gson = new GsonBuilder().setLenient().create();
+        //Set up retrofit to make our API call
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        //More setup
+        MessagingAPI api = retrofit.create(MessagingAPI.class);
+
+        //Call the login interface that we created
+        Call<List<User>> call = api.sendPhoto(photo, senderId, recipientId);
 
 //        //Make API call, handle success and error
         call.enqueue(new Callback<List<User>>() {
