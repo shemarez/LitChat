@@ -182,6 +182,8 @@ public class MessageActivity extends AppCompatActivity {
         mSocket.connect();
         /* Listen for new messages */
         mSocket.on("updateMessageArea", newMessage);
+        /* Listen for new photo message */
+        mSocket.on("updatePhotoMessage", newPhoto);
         /* Listen for current sockets connected */
         mSocket.on("usersOnline", usersOnline);
         /* Listen for showChatBubble event */
@@ -220,22 +222,20 @@ public class MessageActivity extends AppCompatActivity {
                             scroll();
                         }
 
-                        // checking to see if it is a photo
-//                        if (data.getBoolean("isPhoto")) {
-//                            System.out.println("the photo path " + message);
-//                            chatMessage.setPhotoMsg(true);  // boolean that we check for in message adapter
-//                            chatMessage.setPhotoFile(new File(message)); // sets the source of the
-//                            chatMessage.setDate(getCurrentTime());
-//
-//                        } else {
-                            // render here
-                            chatMessage.setMessage(message);
-                            chatMessage.setDate(getCurrentTime());
 
+                        //checking to see if it is a photo
+//                        if (data.getBoolean("isPhoto")) {
+//                            System.out.println("newMessage: is photo");
+//                            String fileName = data.getString("fileName");
+//                            String photoSrc = TEST_URL + "public/img/" + fileName;
+//                            System.out.println("photosrc:" + photoSrc);
+//                            chatMessage.setPhotoMsg(true);  // boolean that we check for in message adapter
+//                            chatMessage.setPhotoSrc(photoSrc); // sets the source of the
 //                        }
 
+                        chatMessage.setMessage(message);
+                        chatMessage.setDate(getCurrentTime());
                         displayMessage(chatMessage);
-
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -245,6 +245,32 @@ public class MessageActivity extends AppCompatActivity {
 
                     // add the message to view
 
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener newPhoto = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String filePath;
+                    ChatMessage photoMessage = new ChatMessage();
+                    photoMessage.setPhotoMsg(true);
+
+                    try {
+                        filePath = data.getString("filePath");
+                        Log.i("newphoto: filePath", filePath);
+                        photoMessage.setPhotoSrc(filePath);
+                        photoMessage.setDate(getCurrentTime());
+                        displayMessage(photoMessage);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        return;
+                    }
                 }
             });
         }
@@ -266,28 +292,28 @@ public class MessageActivity extends AppCompatActivity {
                     if (hasTypingBubble && isTyping) {
 
                         timer.schedule(
-                                new TimerTask() {
-                                    @Override
-                                    public void run() {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                isTyping = false;
-                                                System.out.println("REMOVE BUBBLE");
-                                                if (hasTypingBubble) {
-                                                    adapter.remove(mTypingBubble);
-                                                    hasTypingBubble = false;
-
-                                                }
-                                                adapter.notifyDataSetChanged();
-                                                scroll();
-                                                Log.i(MessageActivity.class.getSimpleName(), "User stopped typing");
+                            new TimerTask() {
+                                @Override
+                                public void run() {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            isTyping = false;
+                                            System.out.println("REMOVE BUBBLE");
+                                            if (hasTypingBubble) {
+                                                adapter.remove(mTypingBubble);
+                                                hasTypingBubble = false;
 
                                             }
-                                        });
+                                            adapter.notifyDataSetChanged();
+                                            scroll();
+                                            Log.i(MessageActivity.class.getSimpleName(), "User stopped typing");
 
-                                    }
-                                }, DELAY);
+                                        }
+                                    });
+
+                                }
+                            }, DELAY);
                     }
                 }
             });
@@ -380,7 +406,7 @@ public class MessageActivity extends AppCompatActivity {
                 //// TODO: 5/26/2017 add created at to db
 
                 messageET.setText("");
-
+                System.out.println("HERE THIS IS THE MESSAGE: " + chatMessage.getMessage());
                 displayMessage(chatMessage);
 
                 String otherUserId;
@@ -405,11 +431,8 @@ public class MessageActivity extends AppCompatActivity {
                 intent.setAction(Intent.ACTION_PICK);
                 mPhoto.checkPermissions(that);  // checking permissions
                 // Always show the chooser (if there are multiple options available)
-                // sendPhoto is called in this method
-
                 // launch chooser
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
-
             }
         });
 
@@ -446,8 +469,6 @@ public class MessageActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Uri u = mPhoto.activityResult(requestCode, resultCode, data);
         mPhotoPath = mPhoto.getRealPathFromURIPath(u, this);
-//        postMessage(mPhotoPath, mUserId, otherUserId, true);
-
 
         // creates and displays the photo
         ChatMessage photoMsg = new ChatMessage();
@@ -470,9 +491,19 @@ public class MessageActivity extends AppCompatActivity {
             otherUserId = mConvo.getSenderId();
         }
 
-
+        JSONObject photoData = new JSONObject();
+        String fileName = thePath.substring(thePath.lastIndexOf("/") + 1);
+        try {
+            Log.i("onActivityResult ", thePath);
+            photoData.put("fileName", fileName);
+            photoData.put("senderId", mUserId);
+            photoData.put("recipientId", otherUserId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         mPhoto.sendPhoto(thePath, mUserId, otherUserId);
+        mSocket.emit("sendPhoto", photoData);
         scroll();
 
     }
@@ -556,12 +587,10 @@ public class MessageActivity extends AppCompatActivity {
                         String senderUser = msg.getSenderName();
                         int isPhotoMsg = msg.getIsPhoto();
 
-                        System.out.println("IS PHOTO MSG " + isPhotoMsg);
+
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                         SimpleDateFormat output1 = new SimpleDateFormat("HH:mm a");
                         SimpleDateFormat output2 = new SimpleDateFormat("MMM d ");
-
-//                        System.
 
                         Date d = null;
                         try {
@@ -569,13 +598,12 @@ public class MessageActivity extends AppCompatActivity {
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
+
                         String formattedTime1 = output1.format(d);
                         String formattedTime2 = output2.format(d);
-                        System.out.println("THE MESSAGE " + msg.getMessage());
-                        System.out.println("OLD TIME " + msg.getDate());
-                        System.out.println("NEW TIME " + formattedTime1);
                         msg.setDate(formattedTime1);
                         msg.setMonthDay(formattedTime2);
+
                         if (mUserId.equals(msg.getSenderId())) {
                             msg.setMe(true);
                             mActionBar.setTitle(recipientUser);
@@ -589,7 +617,6 @@ public class MessageActivity extends AppCompatActivity {
                         if (isPhotoMsg == 1) {
                             msg.setPhotoMsg(true);
                             msg.setPhotoSrc(msg.getMessage());
-//                            System.out.println("is a photo " + msg.getMessage());
 
                         }
                         mSpinner.setVisibility(View.GONE);
@@ -623,8 +650,6 @@ public class MessageActivity extends AppCompatActivity {
 
             }
         });
-
-
     }
 
 
@@ -657,6 +682,7 @@ public class MessageActivity extends AppCompatActivity {
 
 
         if (isPhoto) {
+            System.out.println("sendingPhoto");
             String otherUserId;
             if (mUserId.equals(mConvo.getSenderId())) {
                 otherUserId = mConvo.getRecipientId();
@@ -670,7 +696,7 @@ public class MessageActivity extends AppCompatActivity {
             newPhoto.setPhotoFile(new File(message));
 
             displayMessage(newPhoto);
-
+            System.out.println("THIS IS THE MESSAGE: " + message);
             mPhoto.sendPhoto(message, mUserId, otherUserId);
 
         }
