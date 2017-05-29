@@ -59,6 +59,9 @@ public class MessageActivity extends AppCompatActivity {
     /**
      * URL for site
      */
+
+    private static final String TEST_URL = "http://10.0.2.2:8888/";
+
     private static final String BASE_URL = "http://10.0.2.2:8888/";
 
     //    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
@@ -263,34 +266,29 @@ public class MessageActivity extends AppCompatActivity {
                                     @Override
                                     public void run() {
                                         runOnUiThread(new Runnable() {
-                                                          @Override
-                                                          public void run() {
-                                                              isTyping = false;
-                                                              System.out.println("REMOVE BUBBLE");
-                                                              if (hasTypingBubble) {
-                                                                  adapter.remove(mTypingBubble);
-                                                                  hasTypingBubble = false;
+                                            @Override
+                                            public void run() {
+                                                isTyping = false;
+                                                System.out.println("REMOVE BUBBLE");
+                                                if (hasTypingBubble) {
+                                                    adapter.remove(mTypingBubble);
+                                                    hasTypingBubble = false;
 
-                                                              }
-                                                              adapter.notifyDataSetChanged();
-                                                              scroll();
-                                                              Log.i(MessageActivity.class.getSimpleName(), "User stopped typing");
+                                                }
+                                                adapter.notifyDataSetChanged();
+                                                scroll();
+                                                Log.i(MessageActivity.class.getSimpleName(), "User stopped typing");
 
-                                                          }
-                                                      }
-                                        );
+                                            }
+                                        });
 
                                     }
-                                },
-                                DELAY
-                        );
+                                }, DELAY);
                     }
-
-
                 }
             });
-
         }
+
     };
 
     private Emitter.Listener usersOnline = new Emitter.Listener() {
@@ -692,8 +690,6 @@ public class MessageActivity extends AppCompatActivity {
         displayMessage(mTypingBubble);
         hasTypingBubble = true;
     }
-
-
 }
 
 

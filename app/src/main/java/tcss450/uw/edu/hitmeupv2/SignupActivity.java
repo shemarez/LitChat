@@ -116,9 +116,6 @@ public class SignupActivity extends AppCompatActivity {
         snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
         ask(findViewById(R.id.register));
         queryCurrUsers();
-
-
-
     }
 
     /**
@@ -328,7 +325,7 @@ public class SignupActivity extends AppCompatActivity {
 
         //Set up retrofit to make our API call
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(TEST_URL)
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
