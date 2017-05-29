@@ -478,33 +478,36 @@ public class MessageActivity extends AppCompatActivity {
         String thePath = mPhoto.getRealPathFromURIPath(u, this);
 //        photoMsg.setPhotoSrc(mPhoto.getRealPathFromURIPath(u, this));
 
+        if(thePath != null) {
+            File f = new File(thePath);
+            System.out.println("NEW PIC MAIL " +f.toString());
+            photoMsg.setPhotoFile(f);  // SET SO YOU CAN ACCESS IN MESSAGE ADAPTER
+            displayMessage(photoMsg);
 
-        File f = new File(thePath);
-        System.out.println("NEW PIC MAIL " +f.toString());
-        photoMsg.setPhotoFile(f);  // SET SO YOU CAN ACCESS IN MESSAGE ADAPTER
-        displayMessage(photoMsg);
+            String otherUserId;
+            if (mUserId.equals(mConvo.getSenderId())) {
+                otherUserId = mConvo.getRecipientId();
+            } else {
+                otherUserId = mConvo.getSenderId();
+            }
 
-        String otherUserId;
-        if (mUserId.equals(mConvo.getSenderId())) {
-            otherUserId = mConvo.getRecipientId();
-        } else {
-            otherUserId = mConvo.getSenderId();
+            JSONObject photoData = new JSONObject();
+            String fileName = thePath.substring(thePath.lastIndexOf("/") + 1);
+            try {
+                Log.i("onActivityResult ", thePath);
+                photoData.put("fileName", fileName);
+                photoData.put("senderId", mUserId);
+                photoData.put("recipientId", otherUserId);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            mPhoto.sendPhoto(thePath, mUserId, otherUserId);
+            mSocket.emit("sendPhoto", photoData);
+            scroll();
+
         }
 
-        JSONObject photoData = new JSONObject();
-        String fileName = thePath.substring(thePath.lastIndexOf("/") + 1);
-        try {
-            Log.i("onActivityResult ", thePath);
-            photoData.put("fileName", fileName);
-            photoData.put("senderId", mUserId);
-            photoData.put("recipientId", otherUserId);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        mPhoto.sendPhoto(thePath, mUserId, otherUserId);
-        mSocket.emit("sendPhoto", photoData);
-        scroll();
 
     }
 

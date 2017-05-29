@@ -113,7 +113,7 @@ public class MessageAdapter extends BaseAdapter {
                 }
             });
             builder.build().load(TEST_URL + "public/" + photoSrc).into(holder.sentPhoto);
-//            holder.txtMessage.setText("");
+            holder.txtMessage.setText("");
             holder.sentPhoto.setVisibility(View.VISIBLE);
             photoSrc = null;
         } else {
@@ -135,7 +135,7 @@ public class MessageAdapter extends BaseAdapter {
                 }
             });
             builder.build().load(photoFile).into(holder.sentPhoto);
-//            holder.txtMessage.setText("");
+            holder.txtMessage.setText("");
             holder.sentPhoto.setVisibility(View.VISIBLE);
 
         }

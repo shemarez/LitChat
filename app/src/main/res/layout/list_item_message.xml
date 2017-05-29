@@ -39,7 +39,8 @@
                 android:id="@+id/sentPhoto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxWidth="240dp"
+                android:maxWidth="200dp"
+                android:maxHeight="200dp"
                 android:visibility="gone"/>
 
             <com.eyalbira.loadingdots.LoadingDots
