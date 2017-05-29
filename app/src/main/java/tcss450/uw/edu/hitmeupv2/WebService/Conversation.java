@@ -116,4 +116,16 @@ public class Conversation implements Serializable {
         recipientName = username;
     }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setSenderProfileImgPath(String path) {
+        this.senderProfileImgPath = path;
+    }
+
+    public void setRecipientProfileImgPath(String path) {
+        this.recipientProfileImgPath = path;
+    }
+
 }

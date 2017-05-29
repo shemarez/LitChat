@@ -17,6 +17,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -137,6 +139,8 @@ public class MessageActivity extends AppCompatActivity {
      */
     private PostPhoto mPhoto;
     private String mPhotoPath;
+    private ProgressBar mSpinner;
+
 
     public MessageActivity() {
         chatHistory = new ArrayList<>();
@@ -151,8 +155,8 @@ public class MessageActivity extends AppCompatActivity {
         mUserId = getIntent().getExtras().getString("userId");
         mConvo = (Conversation) getIntent().getSerializableExtra("Conversation");
         mPhoto = new PostPhoto(this, R.layout.activity_message, R.id.sentPhoto);
+        mSpinner = (ProgressBar) findViewById(R.id.spinner);
 
-        // // TODO: 5/27/2017 finish adding picture mail 
         otherUserIsOnline = false;
         hasTypingBubble = false;
         isTyping = false;
@@ -452,6 +456,8 @@ public class MessageActivity extends AppCompatActivity {
         photoMsg.setDate(getCurrentTime());
         String thePath = mPhoto.getRealPathFromURIPath(u, this);
 //        photoMsg.setPhotoSrc(mPhoto.getRealPathFromURIPath(u, this));
+
+
         File f = new File(thePath);
         System.out.println("NEW PIC MAIL " +f.toString());
         photoMsg.setPhotoFile(f);  // SET SO YOU CAN ACCESS IN MESSAGE ADAPTER
@@ -532,6 +538,7 @@ public class MessageActivity extends AppCompatActivity {
 
         System.out.println("mUserId: " + mUserId);
         System.out.println("otherUserId: " + otherUserId);
+        mSpinner.setVisibility(View.VISIBLE);
 
         Call<List<ChatMessage>> call = api.getMessages(mUserId, otherUserId);
         call.enqueue(new Callback<List<ChatMessage>>() {
@@ -585,6 +592,7 @@ public class MessageActivity extends AppCompatActivity {
 //                            System.out.println("is a photo " + msg.getMessage());
 
                         }
+                        mSpinner.setVisibility(View.GONE);
                         displayMessage(msg);
                     }
 
@@ -601,6 +609,18 @@ public class MessageActivity extends AppCompatActivity {
             public void onFailure(Call<List<ChatMessage>> call, Throwable t) {
                 System.out.println("fail");
                 t.printStackTrace();
+                String result = t.getMessage();
+
+                if (result.startsWith("Unable to")) {
+                    mSpinner.setVisibility(View.GONE);
+
+                    Toast.makeText(that.getApplicationContext(), result, Toast.LENGTH_LONG)
+                            .show();
+                    return;
+
+
+                }
+
             }
         });
 

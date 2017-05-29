@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,6 +49,8 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
     /** Stores path of user profile */
     private String mProfileImgPath;
     private HashMap<Integer, User> mFriendMap;
+    private ProgressBar mSpinner;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +58,7 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
         setContentView(R.layout.activity_friends);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mSpinner = (ProgressBar) findViewById(R.id.spinner);
         mFriendMap = new HashMap<>();
         //Call the getConversations method from the interface that we created
         mUserId = getIntent().getExtras().getString("userId");
@@ -118,6 +123,7 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
         //More setup
         MessagingAPI api = retrofit.create(MessagingAPI.class);
 
+        mSpinner.setVisibility(View.VISIBLE);
         Call<List<User>> call = api.getContacts(mUserId);
         call.enqueue(new Callback<List<User>>() {
             @Override
@@ -155,7 +161,7 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
                     ListView list = (ListView) findViewById(R.id.friendsList);
                     list.setAdapter(adapter);
                     list.setOnItemClickListener(that);
-
+                    mSpinner.setVisibility(View.GONE);
 
                 }
             }
@@ -164,6 +170,18 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
             public void onFailure(Call<List<User>> call, Throwable t) {
                 System.out.println("fail");
                 t.printStackTrace();
+                String result = t.getMessage();
+
+                if (result.startsWith("Unable to")) {
+                    mSpinner.setVisibility(View.GONE);
+
+                    Toast.makeText(that.getApplicationContext(), result, Toast.LENGTH_LONG)
+                            .show();
+                    return;
+
+
+                }
+
             }
         });
 

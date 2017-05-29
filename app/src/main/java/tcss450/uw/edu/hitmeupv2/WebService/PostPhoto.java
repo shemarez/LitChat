@@ -91,14 +91,20 @@ public class PostPhoto {
      * @return the path
      */
     public String getRealPathFromURIPath(Uri contentURI, Activity activity) {
-        Cursor cursor = activity.getContentResolver().query(contentURI, null, null, null, null);
-        if (cursor == null) {
-            return contentURI.getPath();
+        if(contentURI != null) {
+            Cursor cursor = activity.getContentResolver().query(contentURI, null, null, null, null);
+            if (cursor == null) {
+                return contentURI.getPath();
+            } else {
+                cursor.moveToFirst();
+                int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                return cursor.getString(idx);
+            }
+
         } else {
-            cursor.moveToFirst();
-            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-            return cursor.getString(idx);
+            return null;
         }
+
     }
 
 

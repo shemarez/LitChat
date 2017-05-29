@@ -1,6 +1,9 @@
 package tcss450.uw.edu.hitmeupv2;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -14,6 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -31,6 +36,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import tcss450.uw.edu.hitmeupv2.ListItem.RowItem;
 import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
 import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
+import tcss450.uw.edu.hitmeupv2.data.ConversationDB;
 
 /**
  * Shema Rezanejad
@@ -56,6 +62,12 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
     private  String mUserId;
     /** Storing path to recipients profile image. */
     private String mProfileImgPath;
+    /** File storage. */
+    private ConversationDB mConvoDB;
+
+    private List<Conversation> mConvos;
+    private ProgressBar mSpinner;
+
 
 
     @Override
@@ -63,6 +75,7 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mSpinner = (ProgressBar) findViewById(R.id.spinner);
         setSupportActionBar(toolbar);
 
 
@@ -87,87 +100,15 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
+//        webserviceHelper();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(this);
+        connectionManager();
 
-        //used to convert JSON to POJO (Plain old java object)
-        Gson gson = new GsonBuilder().setLenient().create();
 
-        //Set up retrofit to make our API call
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
 
-        //More setup
-        MessagingAPI api = retrofit.create(MessagingAPI.class);
-
-        Call<List<Conversation>> call = api.getConversations(mUserId);
-
-        call.enqueue(new Callback<List<Conversation>>() {
-
-            @Override
-            public void onResponse(Call<List<Conversation>> call, Response<List<Conversation>> response) {
-
-                if (response.isSuccessful()) {
-                    List<Conversation> convos = response.body();
-                    for (int i = 0; i < convos.size(); i++) {
-                        Conversation convo = convos.get(i);
-                        mFriendMap.put(i, convo);
-                        String lastMsg = convos.get(i).getMessage();
-                        String senderId = convo.getSenderId();
-                        String recipientId = convo.getRecipientId();
-                        String senderImg = convo.getSenderProfileImgPath();
-                        String recipientImg = convo.getRecipientProfileImgPath();
-
-                        // When creating the friend name label for the row items
-                        // we want to display the "opposite name", so if the
-                        // logged in user is the sender of the conversation,
-                        // display the recipients name for the label, but if
-                        // the logged in user is the recipients name, display
-                        // the sender name for the label
-                        if (mUserId.equals(senderId)) {
-
-                            if(recipientImg != null) {
-                                String imgURL = BASE_URL +  "public/" + recipientImg;
-                                createRowItems(imgURL, convo.getRecipientName(), lastMsg);
-                            } else {
-                                createRowItems(null, convo.getRecipientName(), lastMsg);
-
-                            }
-
-                        } else {
-                            if(senderImg != null) {
-                                String imgURL = BASE_URL +  "public/" + senderImg;
-                                createRowItems(imgURL, convo.getSenderName(), lastMsg);
-                            } else {
-                                createRowItems(null, convo.getSenderName(), lastMsg);
-                            }
-                        }
-                    }
-
-                    CustomListViewAdapter adapter = new CustomListViewAdapter(that,R.layout.content_homepage_list,
-                            mFriendList, true);
-
-                    adapter.setmTitle(R.id.friendLabel);
-                    adapter.setmSubtitleTitle(R.id.lastConvo);
-                    adapter.setmImg(R.id.profile_pic);
-
-                    ListView list = (ListView) findViewById(R.id.conversationsList);
-                    list.setAdapter(adapter);
-                    list.setOnItemClickListener(that);
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Conversation>> call, Throwable t) {
-                System.out.println("fail");
-                t.printStackTrace();
-            }
-        });
     }
 
     /**
@@ -260,6 +201,176 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         intent.putExtras(extras);
         startActivity(intent);
     }
+
+    private void webserviceHelper() {
+        final HomepageActivity that = this;
+        //used to convert JSON to POJO (Plain old java object)
+        Gson gson = new GsonBuilder().setLenient().create();
+
+        //Set up retrofit to make our API call
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        //More setup
+        MessagingAPI api = retrofit.create(MessagingAPI.class);
+
+
+        Call<List<Conversation>> call = api.getConversations(mUserId);
+        mSpinner.setVisibility( View.VISIBLE);
+
+        call.enqueue(new Callback<List<Conversation>>() {
+
+            @Override
+            public void onResponse(Call<List<Conversation>> call, Response<List<Conversation>> response) {
+
+                if (response.isSuccessful()) {
+                    List<Conversation> convos = response.body();
+                    mConvos = response.body();
+                    mConvoDB = new ConversationDB(that);
+//                    mConvoDB.
+                    for (int i = 0; i < convos.size(); i++) {
+                        Conversation convo = convos.get(i);
+                        mFriendMap.put(i, convo);
+                        String lastMsg = convos.get(i).getMessage();
+                        String senderId = convo.getSenderId();
+                        String recipientId = convo.getRecipientId();
+                        String senderImg = convo.getSenderProfileImgPath();
+                        String recipientImg = convo.getRecipientProfileImgPath();
+
+
+                        // When creating the friend name label for the row items
+                        // we want to display the "opposite name", so if the
+                        // logged in user is the sender of the conversation,
+                        // display the recipients name for the label, but if
+                        // the logged in user is the recipients name, display
+                        // the sender name for the label
+                        if (mUserId.equals(senderId)) {
+
+                            if(recipientImg != null) {
+                                String imgURL = BASE_URL +  "public/" + recipientImg;
+                                createRowItems(imgURL, convo.getRecipientName(), lastMsg);
+                                mConvoDB.insertConvo(mUserId, senderId, recipientId, lastMsg, convo.getRecipientName(), imgURL);
+
+                            } else {
+                                createRowItems(null, convo.getRecipientName(), lastMsg);
+                                mConvoDB.insertConvo(mUserId, senderId, recipientId, lastMsg, convo.getRecipientName(), null);
+                            }
+
+                        } else {
+                            if(senderImg != null) {
+                                String imgURL = BASE_URL +  "public/" + senderImg;
+                                createRowItems(imgURL, convo.getSenderName(), lastMsg);
+                                mConvoDB.insertConvo(mUserId, senderId, recipientId, lastMsg, convo.getSenderName(), imgURL);
+
+                            } else {
+                                createRowItems(null, convo.getSenderName(), lastMsg);
+                                mConvoDB.insertConvo(mUserId, senderId, recipientId, lastMsg, convo.getSenderName(), null);
+
+                            }
+
+                        }
+                    }
+
+                    CustomListViewAdapter adapter = new CustomListViewAdapter(that,R.layout.content_homepage_list,
+                            mFriendList, true);
+
+                    adapter.setmTitle(R.id.friendLabel);
+                    adapter.setmSubtitleTitle(R.id.lastConvo);
+                    adapter.setmImg(R.id.profile_pic);
+
+                    ListView list = (ListView) findViewById(R.id.conversationsList);
+                    list.setAdapter(adapter);
+                    list.setOnItemClickListener(that);
+
+                    mSpinner.setVisibility(View.GONE);
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Conversation>> call, Throwable t) {
+                System.out.println("fail");
+                t.printStackTrace();
+                String result = t.getMessage();
+                if (result.startsWith("Unable to")) {
+                    mSpinner.setVisibility(View.GONE);
+
+                    Toast.makeText(that.getApplicationContext(), result, Toast.LENGTH_LONG)
+                            .show();
+                    return;
+
+
+                }
+
+            }
+        });
+    }
+
+
+    private void connectionManager() {
+        ConnectivityManager mgr =(ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo info = mgr.getActiveNetworkInfo();
+        if(info != null && info.isConnected()) {
+            webserviceHelper();
+        } else {
+            Toast.makeText(this,
+                    "No network connection available.",
+                    Toast.LENGTH_SHORT) .show();
+
+            if(mConvoDB == null) {
+                mConvoDB = new ConversationDB(this);
+            }
+
+            if(mConvos == null) {
+                mConvos = mConvoDB.getConvos();
+
+                for(int i = 0; i <mConvos.size(); i++) {
+                    Conversation c = mConvos.get(i);
+                    String lastMsg = c.getMessage();
+                    String senderId = c.getSenderId();
+                    String recipientId = c.getRecipientId();
+                    String senderImg = c.getSenderProfileImgPath();
+                    String recipientImg = c.getRecipientProfileImgPath();
+
+
+                    if(senderId != null ) {
+                        createRowItems(senderImg,c.getRecipientName(), lastMsg);
+
+                    } else {
+                        createRowItems(recipientImg, c.getSenderName(), lastMsg);
+                    }
+
+                    System.out.println("last message "+ lastMsg);
+                    System.out.println("username " + c.getRecipientName());
+                    System.out.println("sender " + c.getSenderName());
+                    System.out.println("recipient img " + c.getRecipientProfileImgPath());
+                    System.out.println("sender img " + c.getSenderProfileImgPath());
+                    System.out.println("sender id " + c.getSenderId());
+                    System.out.println("recipient id " + c.getRecipientId());
+
+                }
+            }
+
+            CustomListViewAdapter adapter = new CustomListViewAdapter(this,R.layout.content_homepage_list,
+                    mFriendList, true);
+
+            adapter.setmTitle(R.id.friendLabel);
+            adapter.setmSubtitleTitle(R.id.lastConvo);
+            adapter.setmImg(R.id.profile_pic);
+
+            ListView list = (ListView) findViewById(R.id.conversationsList);
+            list.setAdapter(adapter);
+            list.setOnItemClickListener(this);
+
+
+        }
+    }
+
+
+
 
 
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="CREATE_CONVERSATION_SQL">
+    CREATE TABLE IF NOT EXISTS Conversation
+    (id TEXT PRIMARY KEY, senderId TEXT, recipientId TEXT, message TEXT,
+    username TEXT, profileImgPath TEXT)
+    </string>
+
+    <string name="DROP_CONVERSATION_SQL">
+    DROP TABLE IF EXISTS Conversation
+    </string>
+
+</resources>
