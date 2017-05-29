@@ -143,11 +143,6 @@ public class MessageAdapter extends BaseAdapter {
             holder.sentPhoto.setVisibility(View.GONE);
 
         }
-
-
-
-
-
         return convertView;
     }
 
