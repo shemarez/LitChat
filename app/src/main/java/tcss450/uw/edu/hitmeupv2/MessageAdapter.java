@@ -102,7 +102,7 @@ public class MessageAdapter extends BaseAdapter {
         // if it is a url do this
         if(photoSrc != null && isPhoto) {
             System.out.println("in photosrc");
-            System.out.println("THE URI " + TEST_URL +"public/" +photoSrc);
+            System.out.println("THE URI " + BASE_URL +"public/" +photoSrc);
             Picasso.Builder builder = new Picasso.Builder(context);
             builder.listener(new Picasso.Listener()
             {
@@ -112,7 +112,7 @@ public class MessageAdapter extends BaseAdapter {
                     exception.printStackTrace();
                 }
             });
-            builder.build().load(TEST_URL + "public/" + photoSrc).into(holder.sentPhoto);
+            builder.build().load(BASE_URL + "public/" + photoSrc).into(holder.sentPhoto);
             holder.txtMessage.setText("");
             holder.sentPhoto.setVisibility(View.VISIBLE);
             photoSrc = null;

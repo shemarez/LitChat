@@ -64,9 +64,9 @@ public class MessageActivity extends AppCompatActivity {
 
     private static final String TEST_URL = "http://10.0.2.2:8888/";
 
-    private static final String BASE_URL = "http://10.0.2.2:8888/";
+//    private static final String BASE_URL = "http://10.0.2.2:8888/";
 
-    //    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+    private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
     private int PICK_IMAGE_REQUEST = 1;
 
 
