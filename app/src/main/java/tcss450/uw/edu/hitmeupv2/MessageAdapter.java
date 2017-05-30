@@ -24,17 +24,30 @@ import tcss450.uw.edu.hitmeupv2.WebService.ChatMessage;
 
 /**
  * Created by Shema on 4/20/2017.
+ *
+ * Adapter for the listview of messages.
+ * Inflates views and sets info about the message on
+ * the frontend
  */
 
 public class MessageAdapter extends BaseAdapter {
     private static final String TEST_URL = "http://10.0.2.2:8888/";
+    /**
+     * Production URL
+     */
     private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
-
-
+    /** All chatmessages */
     private final List<ChatMessage> chatMessages;
+    /** The activity */
     private Activity context;
+    /** Loading dots for typing*/
     private LoadingDots mDots;
 
+    /**
+     * Sets the adapter to the context.
+     * @param context the activity
+     * @param chatMessages the messages
+     */
     public MessageAdapter(Activity context, List<ChatMessage> chatMessages) {
         this.context = context;
         this.chatMessages = chatMessages;
@@ -147,18 +160,35 @@ public class MessageAdapter extends BaseAdapter {
     }
 
 
+    /**
+     * Adds a chat message to the list
+     * @param message the message object
+     */
     public void add(ChatMessage message) {
         chatMessages.add(message);
     }
 
+    /**
+     * Removes the last index of the message from the list
+     * @param message last msg (not used)
+     */
     public void remove(ChatMessage message) {
         chatMessages.remove(chatMessages.size() - 1);
     }
 
+    /**
+     * Adds all messages to our list.
+     * @param messages the array of messages
+     */
     public void add(List<ChatMessage> messages) {
         chatMessages.addAll(messages);
     }
 
+    /**
+     * Sets the side the messages should appear on
+     * @param holder the view
+     * @param isMe checks if it is me or not (determines which side the msg should be on)
+     */
     private void setAlignment(ViewHolder holder, boolean isMe) {
 
         if (isMe) {
@@ -210,6 +240,11 @@ public class MessageAdapter extends BaseAdapter {
         }
     }
 
+    /**
+     * Finds all the views used and sets them
+     * @param v the view
+     * @return the view holder
+     */
     private ViewHolder createViewHolder(View v) {
         ViewHolder holder = new ViewHolder();
         holder.txtMessage = (TextView) v.findViewById(R.id.txtMessage);
@@ -223,6 +258,9 @@ public class MessageAdapter extends BaseAdapter {
     }
 
 
+    /**
+     * Creates all the views needed for every chat message
+     */
     private static class ViewHolder {
         public TextView txtMessage;
         public TextView txtInfo;

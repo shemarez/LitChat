@@ -105,25 +105,52 @@ public class Conversation implements Serializable {
         return recipientProfileImgPath;
     }
 
+    /**
+     * Sets the recipient id
+     * @param id string
+     */
     public void setRecipientId(String id) {
         this.recipientId = id;
     }
+
+    /**
+     * Sets the sender of the message id
+     * @param id string
+     */
     public void setSenderId(String id) {
         this.senderId = id;
     }
 
+    /**
+     * Sets the username of the recipient
+     * @param username string
+     */
     public void setUsername(String username) {
         recipientName = username;
     }
+
+    /**
+     * Sets the message of the conversation
+     * @param message last message
+     */
 
     public void setMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * Sets the path of the senders profile pic
+     * @param path the url
+     */
+
     public void setSenderProfileImgPath(String path) {
         this.senderProfileImgPath = path;
     }
 
+    /**
+     * Sets the path of the recipient profile pic
+     * @param path the url
+     */
     public void setRecipientProfileImgPath(String path) {
         this.recipientProfileImgPath = path;
     }

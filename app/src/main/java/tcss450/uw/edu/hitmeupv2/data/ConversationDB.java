@@ -14,22 +14,42 @@ import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
 
 /**
  * Created by Shema on 5/29/2017.
+ *
+ * Create SQLite DB to hold user information.
  */
 
 public class ConversationDB {
+    /** DB version */
     public static final int DB_VERSION = 1;
+    /** The name of our db */
     public static final String DB_NAME = "Conversation.db";
+    /** The name of our table */
     private static final String CONVO_TABLE = "Conversation";
+    /** Helper */
     private CourseDBHelper mCourseDBHelper;
+    /** The sqlLite db */
     private SQLiteDatabase mSQLiteDatabase;
 
-//    private final String CREAT_MESSAGE_SQL;
-
+    /**
+     * Constructor. Sets the instance fields,
+     * gets the db.
+     * @param context the activity
+     */
     public ConversationDB(Context context) {
         mCourseDBHelper = new CourseDBHelper(context, DB_NAME, null, DB_VERSION);
         mSQLiteDatabase = mCourseDBHelper.getWritableDatabase();
     }
 
+    /**
+     * Inserts a conversation into the DB.
+     * @param myId the curr user id
+     * @param senderId the last sender id
+     * @param recipientId the recipient of the last message
+     * @param message the message shown on homepage
+     * @param username the username shown on list in homepage
+     * @param profileImgPath the friends profile pic
+     * @return a boolean
+     */
     public boolean insertConvo(String myId, String senderId, String recipientId, String message, String username, String profileImgPath) {
         ContentValues cv = new ContentValues();
         cv.put("id", myId);
@@ -44,10 +64,19 @@ public class ConversationDB {
         return rowId !=-1;
     }
 
+
+    /**
+     * Closes the db.
+     */
     public void closeDB() {
         mSQLiteDatabase.close();
     }
 
+
+    /**
+     * Retrieves the conversations from the DB, for display.
+     * @return conversation
+     */
     public List<Conversation> getConvos() {
 
         String [] columns = {
@@ -87,15 +116,10 @@ public class ConversationDB {
                 convo.setSenderProfileImgPath(profileImgPath);
             }
 
-//            convo.setUsername(username);
-//            convo.setMessage(message);
-//            convo.setSenderProfileImgPath(profileImgPath);
 
             list.add(convo);
             c.moveToNext();
-//            convo.setRecipientId(i\;
-//            convo.setM
-//            list.add(c);
+
         }
 
         return list;
@@ -103,12 +127,30 @@ public class ConversationDB {
     }
 
 
+    /**
+     * Delete all the data from the CONVERSATION_TABLE
+     */
+    public void deleteCourses() {
+        mSQLiteDatabase.delete(CONVO_TABLE, null, null);
+    }
 
+
+    /**
+     * Creating the db
+     */
     class CourseDBHelper extends SQLiteOpenHelper{
+        /** The string that creates the table */
         private String CREATE_CONVERSATION_SQL;
+        /** String that will drop the table */
         private String DROP_CONVERSATION_SQL;
 
-
+        /**
+         * Constructs the db
+         * @param context the activity
+         * @param name the name of db
+         * @param factory the factory
+         * @param version the db version
+         */
         public CourseDBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
             super(context, name, factory, version);
             CREATE_CONVERSATION_SQL = context.getString(R.string.CREATE_CONVERSATION_SQL);

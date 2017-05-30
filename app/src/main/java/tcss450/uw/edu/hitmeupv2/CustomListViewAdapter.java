@@ -155,11 +155,11 @@ public class CustomListViewAdapter extends ArrayAdapter<RowItem> {
 
             if(rowItem.getImgPath() != null) {
                 builder.build().load(rowItem.getmImgPath()).placeholder(R.drawable.avatar).into(holder.imageView);
+            } else {
+                builder.build().load(R.drawable.avatar).into(holder.imageView);
             }
 
         }
-
-
 
         return convertView;
     }

@@ -59,6 +59,7 @@ public class RowItem {
         this.mImgPath = mImgPath;
     }
 
+
     /**
      * Getter.
      * @return title
@@ -97,9 +98,8 @@ public class RowItem {
      */
     public String getImgPath() {
         return mImgPath;
-
-
     }
+
     @Override
     public String toString() {
         return mTitle + "\n" + mSubItem;

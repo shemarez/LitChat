@@ -61,15 +61,8 @@ public class MessageActivity extends AppCompatActivity {
     /**
      * URL for site
      */
-
-    private static final String TEST_URL = "http://10.0.2.2:8888/";
-
-//    private static final String BASE_URL = "http://10.0.2.2:8888/";
-
     private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
     private int PICK_IMAGE_REQUEST = 1;
-
-
     /**
      * String from edit text that sender is writing.
      */
@@ -139,9 +132,13 @@ public class MessageActivity extends AppCompatActivity {
      */
     private PostPhoto mPhoto;
     private String mPhotoPath;
+    /** For loading purposes */
     private ProgressBar mSpinner;
 
 
+    /**
+     * Constructor, initializes chatHistory.
+     */
     public MessageActivity() {
         chatHistory = new ArrayList<>();
     }
@@ -201,6 +198,9 @@ public class MessageActivity extends AppCompatActivity {
         mSocket.emit("sendUserId", userIdObj);
     }
 
+    /**
+     * Listens for new message event
+     */
     private Emitter.Listener newMessage = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -239,6 +239,10 @@ public class MessageActivity extends AppCompatActivity {
         }
     };
 
+
+    /**
+     * Listens for new photo event
+     */
     private Emitter.Listener newPhoto = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -265,6 +269,9 @@ public class MessageActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * Listens if other user is typing
+     */
     private Emitter.Listener chatBubbleEvent = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -277,8 +284,7 @@ public class MessageActivity extends AppCompatActivity {
                     System.out.println("is typing " + isTyping);
                     if (!hasTypingBubble) {
                         displayTypingBubble();
-                    }
-                    if (hasTypingBubble && isTyping) {
+                    } else if (hasTypingBubble && isTyping) {
 
                         timer.schedule(
                             new TimerTask() {
@@ -287,15 +293,15 @@ public class MessageActivity extends AppCompatActivity {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            isTyping = false;
+//                                            isTyping = false;
                                             System.out.println("REMOVE BUBBLE");
                                             if (hasTypingBubble) {
                                                 adapter.remove(mTypingBubble);
                                                 hasTypingBubble = false;
+                                                adapter.notifyDataSetChanged();
 
                                             }
-                                            adapter.notifyDataSetChanged();
-                                            scroll();
+//                                            scroll();
                                             Log.i(MessageActivity.class.getSimpleName(), "User stopped typing");
 
                                         }
@@ -310,6 +316,9 @@ public class MessageActivity extends AppCompatActivity {
 
     };
 
+    /**
+     * Sees which user is online
+     */
     private Emitter.Listener usersOnline = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -390,9 +399,6 @@ public class MessageActivity extends AppCompatActivity {
                 chatMessage.setMessage(messageText);
                 chatMessage.setMe(true);
                 chatMessage.setDate(getCurrentTime());
-//                chatMessage.setMonthDay();
-                //// TODO: 5/26/2017 add monthday to the message
-                //// TODO: 5/26/2017 add created at to db
 
                 messageET.setText("");
                 System.out.println("HERE THIS IS THE MESSAGE: " + chatMessage.getMessage());
@@ -613,7 +619,8 @@ public class MessageActivity extends AppCompatActivity {
                         displayMessage(msg);
                     }
 
-                    if (mActionBar.getTitle().equals("LitChat") && getIntent().getExtras().getString("actionBarTitle") != null) {
+                    if (mActionBar.getTitle().equals("Messages") && getIntent().getExtras().getString("actionBarTitle") != null) {
+                        mSpinner.setVisibility(View.GONE);
 
                         System.out.println("the recipients username " + getIntent().getExtras().getString("actionBarTitle"));
                         mActionBar.setTitle(getIntent().getExtras().getString("actionBarTitle"));

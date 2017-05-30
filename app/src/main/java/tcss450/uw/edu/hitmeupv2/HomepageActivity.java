@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -18,16 +19,19 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -36,6 +40,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import tcss450.uw.edu.hitmeupv2.ListItem.RowItem;
 import tcss450.uw.edu.hitmeupv2.WebService.Conversation;
 import tcss450.uw.edu.hitmeupv2.WebService.MessagingAPI;
+import tcss450.uw.edu.hitmeupv2.WebService.User;
 import tcss450.uw.edu.hitmeupv2.data.ConversationDB;
 
 /**
@@ -64,9 +69,18 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
     private String mProfileImgPath;
     /** File storage. */
     private ConversationDB mConvoDB;
-
+    /** Stores old conversations for sqlite */
     private List<Conversation> mConvos;
+    /** For loading purposese */
     private ProgressBar mSpinner;
+    /** If there are no current conversations */
+    private TextView mNoConvo;
+    /** Sets the nav drawer username */
+    private TextView mUsername;
+    /** Sets the nav drawer profile picture */
+    private CircleImageView mProfilePic;
+    /** Sets the phone number for nav drawer */
+    private TextView mPhoneNum;
 
 
 
@@ -76,13 +90,14 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         setContentView(R.layout.activity_homepage);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         mSpinner = (ProgressBar) findViewById(R.id.spinner);
+        mNoConvo = (TextView) findViewById(R.id.noConvo);
+
         setSupportActionBar(toolbar);
-
-
         final HomepageActivity  that = this;
         //Call the getConversations method from the interface that we created
 
         mUserId = getIntent().getExtras().getString("userId");
+        String username = getIntent().getExtras().getString("username");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -105,8 +120,12 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(this);
-        connectionManager();
-
+        View hView =  navigationView.getHeaderView(0);
+        mUsername = (TextView)hView.findViewById(R.id.name);
+        mProfilePic = (CircleImageView) hView.findViewById(R.id.profile_pic);
+        mPhoneNum = (TextView) hView.findViewById(R.id.phone) ;
+        getCurrentUserInfo();
+        connectionManager(username);
 
 
     }
@@ -202,7 +221,12 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         startActivity(intent);
     }
 
-    private void webserviceHelper() {
+
+    /**
+     * Queries for conversations
+     * @param username the username
+     */
+    private void webserviceHelper(final String username) {
         final HomepageActivity that = this;
         //used to convert JSON to POJO (Plain old java object)
         Gson gson = new GsonBuilder().setLenient().create();
@@ -220,6 +244,8 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         Call<List<Conversation>> call = api.getConversations(mUserId);
         mSpinner.setVisibility( View.VISIBLE);
 
+        System.out.println(mUsername.getText());
+
         call.enqueue(new Callback<List<Conversation>>() {
 
             @Override
@@ -229,7 +255,18 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                     List<Conversation> convos = response.body();
                     mConvos = response.body();
                     mConvoDB = new ConversationDB(that);
-//                    mConvoDB.
+
+                    mConvoDB.deleteCourses();
+
+                    mSpinner.setVisibility(View.GONE);
+
+
+                    if(convos.isEmpty()) {
+                        mNoConvo.setVisibility(View.VISIBLE);
+                    } else {
+                        mNoConvo.setVisibility(View.GONE);
+                    }
+
                     for (int i = 0; i < convos.size(); i++) {
                         Conversation convo = convos.get(i);
                         mFriendMap.put(i, convo);
@@ -247,7 +284,6 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                         // the logged in user is the recipients name, display
                         // the sender name for the label
                         if (mUserId.equals(senderId)) {
-
                             if(recipientImg != null) {
                                 String imgURL = BASE_URL +  "public/" + recipientImg;
                                 createRowItems(imgURL, convo.getRecipientName(), lastMsg);
@@ -284,7 +320,6 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                     list.setAdapter(adapter);
                     list.setOnItemClickListener(that);
 
-                    mSpinner.setVisibility(View.GONE);
 
                 }
             }
@@ -309,12 +344,16 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
     }
 
 
-    private void connectionManager() {
+    /**
+     * Checks if connected to network, if not use sqlite
+     * @param username the users username
+     */
+    private void connectionManager(String username) {
         ConnectivityManager mgr =(ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo info = mgr.getActiveNetworkInfo();
         if(info != null && info.isConnected()) {
-            webserviceHelper();
+            webserviceHelper(username);
         } else {
             Toast.makeText(this,
                     "No network connection available.",
@@ -342,15 +381,6 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                     } else {
                         createRowItems(recipientImg, c.getSenderName(), lastMsg);
                     }
-
-                    System.out.println("last message "+ lastMsg);
-                    System.out.println("username " + c.getRecipientName());
-                    System.out.println("sender " + c.getSenderName());
-                    System.out.println("recipient img " + c.getRecipientProfileImgPath());
-                    System.out.println("sender img " + c.getSenderProfileImgPath());
-                    System.out.println("sender id " + c.getSenderId());
-                    System.out.println("recipient id " + c.getRecipientId());
-
                 }
             }
 
@@ -369,6 +399,73 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
         }
     }
 
+
+    /**
+     * loads the users profile pic in the nav drawer
+     */
+    private void loadProfilePic() {
+        if(mProfileImgPath != null) {
+            Picasso.Builder builder = new Picasso.Builder(this);
+            builder.listener(new Picasso.Listener()
+            {
+                @Override
+                public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception)
+                {
+                    exception.printStackTrace();
+                }
+            });
+            builder.build()
+                    .load(BASE_URL + "public/" + mProfileImgPath)
+                    .into(mProfilePic);
+
+        }
+    }
+
+    /**
+     * Returns the current users information. Used to set
+     * info in nav drawer.
+     */
+    private void getCurrentUserInfo() {
+        //used to convert JSON to POJO (Plain old java object)
+        Gson gson = new GsonBuilder().setLenient().create();
+
+
+
+        //Set up retrofit to make our API call
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        //More setup
+        MessagingAPI api = retrofit.create(MessagingAPI.class);
+
+        //Call the login interface that we created
+        Call<List<User>> call = api.getUserInfo(mUserId);
+
+        //Make API call, handle success and error
+        call.enqueue(new Callback<List<User>>() {
+
+            @Override
+            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                if (response.isSuccessful()) {
+                    User user = response.body().get(0);
+                    String userId = user.getUserId();
+                    mUsername.setText(user.getUsername());
+                    mProfileImgPath = user.getProfileImgPath();
+                    mPhoneNum.setText("+" + user.getPhone());
+                    loadProfilePic();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<User>> call, Throwable t) {
+                System.out.println("fail");
+                t.printStackTrace();
+            }
+        });
+
+    }
 
 
 

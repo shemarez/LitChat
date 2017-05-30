@@ -33,7 +33,7 @@
         android:hint="@string/name"
         android:inputType="text"
 
-        android:layout_marginTop="30dp" />
+    />
 
 
     <EditText

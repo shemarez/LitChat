@@ -34,12 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     /*
      * Production server
      */
-
-    /*
-     * Use this if you want to test on a local server with emulator
-     */
     private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
-
     /** Use this if you want to test on a local server with emulator */
     private static final String TEST_URL = "http://10.0.2.2:8888/";
     /** Loading circle, for when server is sleeping. */
@@ -65,7 +60,6 @@ public class LoginActivity extends AppCompatActivity {
 
         if (!mSharedPreferences.getBoolean(getString(R.string.LOGGEDIN), true))  {
             String userId = mSharedPreferences.getString("userId", null);
-            System.out.println("USER ID " + userId);
             Intent i = new Intent(this, HomepageActivity.class);
             i.putExtra("userId", userId);
             startActivity(i);
@@ -143,6 +137,8 @@ public class LoginActivity extends AppCompatActivity {
                         String userId = user.getUserId();
 
                         intent.putExtra("userId", userId);
+                        System.out.println("USERNAME " + user.getUsername());
+                        intent.putExtra("username", user.getUsername());
                         edit.putString("userId", userId);
 //                        edit.putBoolean("loggedIn", true);
                         edit.putBoolean(getString(R.string.LOGGEDIN), false);

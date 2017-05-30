@@ -45,12 +45,11 @@
             android:layout_below="@+id/messagesContainer"
             android:layout_gravity="start"
             android:layout_marginRight="0dp"
-
             android:background="@null"
             android:cropToPadding="false"
             android:paddingRight="4dp"
-            android:src="@drawable/ic_camera_alt_black_24dp"
-            android:tint="@color/textColorHint" />
+            android:tint="@color/textColorHint"
+            app:srcCompat="@drawable/ic_camera_alt_black_24dp" />
 
 
         <EditText
@@ -58,12 +57,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@id/attachPhoto"
             android:autoText="true"
             android:background="@color/messageScreenBackground"
             android:hint="@string/msg_box"
-            android:inputType="textShortMessage"
-            android:textColor="@color/textMessageColor" />
+            android:inputType="textMultiLine"
+            android:maxLines="10"
+            android:scrollbars="vertical"
+            android:textColor="@color/textMessageColor"
+            android:layout_toLeftOf="@+id/chatSendButton"
+            android:layout_toRightOf="@+id/attachPhoto"
+            android:layout_toEndOf="@+id/attachPhoto" />
 
 
         <ListView
@@ -82,11 +85,11 @@
 
         <ImageButton
             android:id="@+id/chatSendButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/messagesContainer"
+
             android:background="@color/messageScreenBackground"
             android:onClick="postMessage"
             android:tint="@color/colorAccent"

@@ -48,7 +48,9 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
     private  String mUserId;
     /** Stores path of user profile */
     private String mProfileImgPath;
+    /**Stores the position and user for on item click*/
     private HashMap<Integer, User> mFriendMap;
+    /** For loading purposes */
     private ProgressBar mSpinner;
 
 

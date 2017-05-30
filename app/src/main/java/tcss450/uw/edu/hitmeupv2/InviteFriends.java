@@ -15,16 +15,26 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+/**
+ * Shema Rezanejad
+ * Jason Thai
+ *
+ * Invites friends by sms to use LitChat
+ */
 public class InviteFriends extends AppCompatActivity {
     /**
      * Checking the permission.
      */
     private static final int MY_PERMISSIONS_REQUEST_SMS = 1;
-
+    /** The user id */
     private String mUserId;
+    /** Users phone number */
     private String mPhone;
+    /** If permission is granted to send SMS */
     private boolean isGranted;
+    /** For notifying purposes */
     private Snackbar snackbar;
+    /** Sets the username */
     private String mUsername;
 
 
@@ -70,13 +80,23 @@ public class InviteFriends extends AppCompatActivity {
 
     }
 
+    /**
+     * If user clicked invite, send sms.
+     * @param v the view
+     */
     public void clickedInvite(View v) {
         if(isGranted) {
             EditText phone = (EditText) findViewById(R.id.friendsPhone);
-            SmsManager sms = SmsManager.getDefault();
-            sms.sendTextMessage(phone.getText().toString(), null, "Start chatting with me on LitChat!", null, null);
-            snackbar.setText("SMS was sent");
-            snackbar.show();
+            if (phone.getText().toString().length() > 0 ) {
+                SmsManager sms = SmsManager.getDefault();
+                sms.sendTextMessage(phone.getText().toString(), null, "Start chatting with me on LitChat!", null, null);
+                snackbar.setText("SMS was sent");
+                snackbar.show();
+            } else {
+                snackbar.setText("Invalid phone number");
+                snackbar.show();
+            }
+
 
         } else {
             snackbar.setText("Permission to send SMS was denied.");
@@ -111,6 +131,10 @@ public class InviteFriends extends AppCompatActivity {
     }
 
 
+    /**
+     * Shows permission dialog
+     * @param v the view
+     */
     public void ask(View v) {
         switch (v.getId()) {
             case R.id.inviteBtn:

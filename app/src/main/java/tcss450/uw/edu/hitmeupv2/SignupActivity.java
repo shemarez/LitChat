@@ -1,19 +1,13 @@
 package tcss450.uw.edu.hitmeupv2;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -114,7 +108,7 @@ public class SignupActivity extends AppCompatActivity {
         snackbar = Snackbar
                 .make(usernameEditText, "Please enter a valid username or password", Snackbar.LENGTH_LONG);
         snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorAccent));
-        ask(findViewById(R.id.register));
+//        ask(findViewById(R.id.register));
         queryCurrUsers();
     }
 
@@ -198,10 +192,6 @@ public class SignupActivity extends AppCompatActivity {
             isValidated = false;
         }
 
-//        if(name.length() > 0 && !usernameExists && phone.length() > 0 && password.length() >= 6 &&
-//                username.length() > 0 && confirmPass.equals(password)) {
-//            isValidated= true;
-//        }
         if(isValidated) {
             //used to convert JSON to POJO (Plain old java object)
             Gson gson = new GsonBuilder().setLenient().create();
@@ -232,14 +222,6 @@ public class SignupActivity extends AppCompatActivity {
 
                         mLoadingScreen.dismiss();
                         Log.i("SignupActivity", response.toString());
-                        if (isGranted) {
-                            SmsManager sms = SmsManager.getDefault();
-                            sms.sendTextMessage(phone, null, "Welcome to LitChat! Your username is: " + username + ". Select a friend and start chatting!", null, null);
-
-                        } else {
-                            snackbar.setText("Permission for SMS denied.");
-
-                        }
                         startActivity(intent); //Switch to new activity
                     }
 
@@ -260,64 +242,9 @@ public class SignupActivity extends AppCompatActivity {
 
     }
 
-
     /**
-     * Helper method that will allow user to choose if they want
-     * an SMS sent to them.
+     * Queries for all users usernames. For validating purposes.
      */
-    private void askForPermission(String permission, Integer requestCode) {
-        if (ContextCompat.checkSelfPermission(SignupActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(SignupActivity.this, permission)) {
-
-                //This is called if user has denied the permission before
-                //In this case I am just asking the permission again
-                ActivityCompat.requestPermissions(SignupActivity.this, new String[]{permission}, requestCode);
-
-            } else {
-
-                ActivityCompat.requestPermissions(SignupActivity.this, new String[]{permission}, requestCode);
-            }
-        } else {
-            Toast.makeText(this, "" + permission + " is already granted.", Toast.LENGTH_SHORT).show();
-            isGranted = true;
-        }
-    }
-
-
-    public void ask(View v) {
-        switch (v.getId()) {
-            case R.id.register:
-                askForPermission(Manifest.permission.SEND_SMS, MY_PERMISSIONS_REQUEST_SMS);
-                break;
-
-            default:
-                break;
-        }
-
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (ActivityCompat.checkSelfPermission(this, permissions[0]) == PackageManager.PERMISSION_GRANTED) {
-            switch (requestCode) {
-                //sms
-                case 1:
-                    isGranted = true;
-
-                    break;
-            }
-
-//            Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
     private void queryCurrUsers() {
         //used to convert JSON to POJO (Plain old java object)
         Gson gson = new GsonBuilder().setLenient().create();
@@ -349,6 +276,8 @@ public class SignupActivity extends AppCompatActivity {
             public void onFailure(Call<List<User>> call, Throwable t) {
                 System.out.println("fail");
                 t.printStackTrace();
+                snackbar.setText("Something went wrong. Please retry.");
+                snackbar.show();
             }
         });
     }

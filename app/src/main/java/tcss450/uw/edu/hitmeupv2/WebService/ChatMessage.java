@@ -4,6 +4,8 @@ import java.io.File;
 
 /**
  * Created by Shema on 4/20/2017.
+ *
+ * Creates a message object.
  */
 
 public class ChatMessage {
@@ -134,59 +136,103 @@ public class ChatMessage {
     }
 
     /**
-     *
-     * @return
+     * Returns the sender name
+     * @return senderName
      */
     public String getSenderName() {
         return senderName;
     }
 
     /**
-     *
-     * @return
+     * Returns the recipient name
+     * @return recipientName
      */
     public String getRecipientName() {
         return  recipientName;
     }
 
+    /**
+     * Sets if the user is typing
+     * @param isTyping the boolean
+     */
     public void setRecipientTyping(boolean isTyping) {
         this.isRecipientTyping = isTyping;
     }
 
+    /**
+     * Returns if the user is typing
+     * @return isRecipientTyping
+     */
     public boolean getRecipientTyping() {
         return this.isRecipientTyping;
     }
 
+    /**
+     * Returns the month and day
+     * @return monthDay
+     */
     public String getMonthDay() { return monthDay; }
 
+    /**
+     * If it is a photo message
+     * @return isPhotoMsg
+     */
     public boolean isPhotoMsg() {
         return isPhotoMsg;
     }
 
+    /**
+     * Sets if message is photo message.
+     * @param photoMsg the boolean
+     */
     public void setPhotoMsg(boolean photoMsg) {
         isPhotoMsg = photoMsg;
     }
 
+    /**
+     * Gets the photo src for a url
+     * @return photoSrc
+     */
     public String getPhotoSrc() {
         return photoSrc;
     }
 
+    /**
+     * Sets the photo source
+     * @param photoSrc a part of url
+     */
     public void setPhotoSrc(String photoSrc) {
         this.photoSrc = photoSrc;
     }
 
+    /**
+     * Sets photo file, if coming from within android dir
+     * @param photoSrc a file
+     */
     public void setPhotoFile(File photoSrc) {
         this.photoFile = photoSrc;
     }
 
+    /**
+     * Returns the photofile
+     * @return photoFile
+     */
     public File getPhotoFile() {
         return photoFile;
     }
 
+    /**
+     * Returns if the photo is a photo
+     * @return 1 if a photo
+     */
     public int getIsPhoto() {
         return isPhoto;
     }
 
+    /**
+     * Set is photo
+     * @param isPhoto 1 if a photo, null otherwise
+     */
     public void setIsPhoto(int isPhoto) {
         this.isPhoto = isPhoto;
     }

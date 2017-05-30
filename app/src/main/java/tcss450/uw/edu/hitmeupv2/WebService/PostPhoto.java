@@ -36,6 +36,8 @@ import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by Shema on 5/26/2017.
+ *
+ * Posts and retrieves photos to the server.
  */
 
 public class PostPhoto {
@@ -50,16 +52,30 @@ public class PostPhoto {
     private static final String TEST_URL = "http://10.0.2.2:8888/";
     /** URL for site */
     private static final String BASE_URL = "https://glacial-citadel-99088.herokuapp.com/";
+    /** The context of the activity */
     private Context mContext;
+    /** The imgview we should set*/
     private ImageView mImageView;
+    /** The user */
     private User mUser;
     /** Stores path to profile image. */
     private String mProfileImgPath;
+    /** The users phone number */
     private String mPhone;
+    /** The users name */
     private String mName;
+    /** The users username */
     private String mUsername;
+    /** Checks if we retrieved an image */
     private boolean retrievedImg;
 
+
+    /**
+     * Gets the context, and inflates the imageview.
+     * @param context activity
+     * @param layout the layout id
+     * @param imageViewId the image view id
+     */
     public PostPhoto(Context context, int layout, int imageViewId) {
         mContext = context;
         View view;
@@ -69,6 +85,13 @@ public class PostPhoto {
 
     }
 
+    /**
+     * Gets called when the image was chosen from gallery
+     * @param requestCode int
+     * @param resultCode int
+     * @param data Intent
+     * @return the uri of the img
+     */
     public Uri activityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
                 android.net.Uri uri = data.getData();
@@ -313,42 +336,82 @@ public class PostPhoto {
         }
     }
 
+    /**
+     * Sets the user currenttly.
+     * @param theUser User
+     */
     public void setUser(User theUser) {
         mUser = theUser;
     }
 
+    /**
+     * Retrieves user
+     * @return mUser
+     */
     public User getUser() {
         return mUser;
     }
 
+    /**
+     * Retrieves the profile img path
+     * @return a url
+     */
     public String getmProfileImgPath() {
         return mProfileImgPath;
     }
 
+    /**
+     * Sets the path of the img
+     * @param mProfileImgPath a string
+     */
     public void setmProfileImgPath(String mProfileImgPath) {
         this.mProfileImgPath = mProfileImgPath;
     }
 
+    /**
+     * Gets the phone of the user
+     * @return mPhone
+     */
     public String getmPhone() {
         return mPhone;
     }
 
+    /**
+     * Sets the phone number for the user
+     * @param mPhone a string
+     */
     public void setmPhone(String mPhone) {
         this.mPhone = mPhone;
     }
 
+    /**
+     * Gets the name of the user
+     * @return mName
+     */
     public String getmName() {
         return mName;
     }
 
+    /**
+     * Sets the name of the user
+     * @param mName String
+     */
     public void setmName(String mName) {
         this.mName = mName;
     }
 
+    /**
+     * Gets the username for the user
+     * @return mUsername
+     */
     public String getmUsername() {
         return mUsername;
     }
 
+    /**
+     * Sets the username for the user
+     * @param mUsername string
+     */
     public void setmUsername(String mUsername) {
         this.mUsername = mUsername;
     }

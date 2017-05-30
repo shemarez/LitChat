@@ -1,6 +1,7 @@
 package tcss450.uw.edu.hitmeupv2;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.squareup.picasso.Picasso;
 
@@ -50,10 +53,19 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
     private String mUsername;
     /** Stores path to profile image. */
     private String mProfileImgPath;
+    /** My phone number */
     private String mPhone;
+    /** My name */
     private String mName;
+    /** Post to db */
     private PostPhoto mPhoto;
+    /** For loading purposes */
+    private ProgressBar mSpinner;
 
+
+    /**
+     * Sets the img path to null
+     */
     public ProfileActivity() {
         mProfileImgPath = null;
     }
@@ -66,10 +78,13 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.profileToolbar);
         CollapsingToolbarLayout t = (CollapsingToolbarLayout) findViewById(R.id.collapse_toolbar);
 
+        mSpinner = (ProgressBar) findViewById(R.id.spinner);
 
         mUserId = getIntent().getExtras().getString("userId");
 
         mPhoto = new PostPhoto(this, R.layout.activity_profile, R.id.expandedProfilePic);
+
+        mSpinner.setVisibility(View.GONE);
 
 
 
@@ -121,21 +136,51 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
             finish();
 
         }
+        if(position == 3) {
+            AlertDialog.Builder d = new AlertDialog.Builder(this);
+
+            d.setTitle("About");
+            // set dialog message
+                     d
+                    .setMessage("LitChat is a messaging app that easily allows you to message friends.")
+                    .setCancelable(false)
+                    .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,int id) {
+                            // if this button is clicked, close
+                            // current activity
+                            ProfileActivity.this.finish();
+                        }
+                    });
+
+
+            // create alert dialog
+            AlertDialog alertDialog = d.create();
+
+            // show it
+            alertDialog.show();
+        }
 
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Uri u = mPhoto.activityResult(requestCode, resultCode, data);
-        final InputStream imageStream;
-        try {
-            imageStream = getContentResolver().openInputStream(u);
-            final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-            ((ImageView)findViewById(R.id.expandedProfilePic)).setImageBitmap(selectedImage);
-            mPhoto.postProfilePic(mPhoto.getRealPathFromURIPath(u, this), mUserId);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+
+        if(u != null) {
+            final InputStream imageStream;
+            try {
+                mSpinner.setVisibility(View.GONE);
+
+                imageStream = getContentResolver().openInputStream(u);
+                final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                ((ImageView)findViewById(R.id.expandedProfilePic)).setImageBitmap(selectedImage);
+                mPhoto.postProfilePic(mPhoto.getRealPathFromURIPath(u, this), mUserId);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
         }
+
 
     }
 
@@ -169,6 +214,8 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
         createRowItems(null , "About");
         createRowItems(null , "Logout");
         generateProfile();
+
+        mSpinner.setVisibility(View.GONE);
 
 
         String imgURL = BASE_URL +  "public/" + mProfileImgPath;
@@ -207,8 +254,9 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
     private void retrieveProfileImg(final CollapsingToolbarLayout toolbar) {
         final ProfileActivity that = this;
 
-       boolean isSuccess=  mPhoto.retrieveProfileImg(toolbar, mUserId);
+        mSpinner.setVisibility(View.VISIBLE);
 
+       boolean isSuccess=  mPhoto.retrieveProfileImg(toolbar, mUserId);
 
     }
 
