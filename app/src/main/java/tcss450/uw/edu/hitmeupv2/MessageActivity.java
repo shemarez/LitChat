@@ -222,17 +222,6 @@ public class MessageActivity extends AppCompatActivity {
                             scroll();
                         }
 
-
-                        //checking to see if it is a photo
-//                        if (data.getBoolean("isPhoto")) {
-//                            System.out.println("newMessage: is photo");
-//                            String fileName = data.getString("fileName");
-//                            String photoSrc = TEST_URL + "public/img/" + fileName;
-//                            System.out.println("photosrc:" + photoSrc);
-//                            chatMessage.setPhotoMsg(true);  // boolean that we check for in message adapter
-//                            chatMessage.setPhotoSrc(photoSrc); // sets the source of the
-//                        }
-
                         chatMessage.setMessage(message);
                         chatMessage.setDate(getCurrentTime());
                         displayMessage(chatMessage);
@@ -280,7 +269,7 @@ public class MessageActivity extends AppCompatActivity {
         @Override
         public void call(final Object... args) {
             final Timer timer = new Timer();
-            final long DELAY = 3000; // milliseconds
+            final long DELAY = 5000; // milliseconds
 
             mActivity.runOnUiThread(new Runnable() {
                 @Override
@@ -504,8 +493,6 @@ public class MessageActivity extends AppCompatActivity {
 
             mPhoto.sendPhoto(thePath, mUserId, otherUserId);
             mSocket.emit("sendPhoto", photoData);
-            scroll();
-
         }
 
 
