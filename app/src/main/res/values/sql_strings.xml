@@ -3,8 +3,8 @@
 
     <string name="CREATE_CONVERSATION_SQL">
     CREATE TABLE IF NOT EXISTS Conversation
-    (id TEXT PRIMARY KEY, senderId TEXT, recipientId TEXT, message TEXT,
-    username TEXT, profileImgPath TEXT)
+    (i INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT, senderId TEXT, recipientId TEXT, message TEXT,
+    username TEXT)
     </string>
 
     <string name="DROP_CONVERSATION_SQL">

@@ -409,7 +409,7 @@ public class PostPhoto {
     }
 
     /**
-     * Sets the username for the user
+     * Sets the username for te user
      * @param mUsername string
      */
     public void setmUsername(String mUsername) {

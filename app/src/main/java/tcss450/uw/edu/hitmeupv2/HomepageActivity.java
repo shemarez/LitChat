@@ -81,6 +81,8 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
     private CircleImageView mProfilePic;
     /** Sets the phone number for nav drawer */
     private TextView mPhoneNum;
+    /** Checks for connections */
+    private boolean hasConnection = true;
 
 
 
@@ -204,21 +206,30 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Intent intent = new Intent(this, MessageActivity.class);
-        Bundle extras = new Bundle(); // for passing multiple values
 
-        for (Map.Entry<Integer, Conversation> entry : mFriendMap.entrySet()) {
-            int key = entry.getKey();
+        if(hasConnection) {
+            Intent intent = new Intent(this, MessageActivity.class);
+            Bundle extras = new Bundle(); // for passing multiple values
 
-            String username = entry.getValue().getRecipientName();
-            if (key == position) {
-                intent.putExtra("userId", mUserId);
-                intent.putExtra("Conversation", entry.getValue());
+            for (Map.Entry<Integer, Conversation> entry : mFriendMap.entrySet()) {
+                int key = entry.getKey();
+
+                String username = entry.getValue().getRecipientName();
+                if (key == position) {
+                    intent.putExtra("userId", mUserId);
+                    intent.putExtra("Conversation", entry.getValue());
+                }
             }
+
+            intent.putExtras(extras);
+            startActivity(intent);
+
+        } else {
+            Toast.makeText(this,
+                    "No network connection available.",
+                    Toast.LENGTH_SHORT) .show();
         }
 
-        intent.putExtras(extras);
-        startActivity(intent);
     }
 
 
@@ -284,25 +295,25 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                         // the logged in user is the recipients name, display
                         // the sender name for the label
                         if (mUserId.equals(senderId)) {
+                            System.out.println(mUserId  +", " + senderId + " ," + recipientId + " ," + lastMsg + " ," + convo.getRecipientName());
+                            mConvoDB.insertConvo(mUserId, senderId, recipientId, lastMsg, convo.getRecipientName());
                             if(recipientImg != null) {
                                 String imgURL = BASE_URL +  "public/" + recipientImg;
                                 createRowItems(imgURL, convo.getRecipientName(), lastMsg);
-                                mConvoDB.insertConvo(mUserId, senderId, recipientId, lastMsg, convo.getRecipientName(), imgURL);
-
                             } else {
                                 createRowItems(null, convo.getRecipientName(), lastMsg);
-                                mConvoDB.insertConvo(mUserId, senderId, recipientId, lastMsg, convo.getRecipientName(), null);
                             }
 
                         } else {
+                            System.out.println(mUserId  +", " + senderId + " ," + recipientId + " ," + lastMsg + " ," + convo.getSenderName());
+
+                            mConvoDB.insertConvo(mUserId, senderId, recipientId, lastMsg, convo.getSenderName());
+
                             if(senderImg != null) {
                                 String imgURL = BASE_URL +  "public/" + senderImg;
                                 createRowItems(imgURL, convo.getSenderName(), lastMsg);
-                                mConvoDB.insertConvo(mUserId, senderId, recipientId, lastMsg, convo.getSenderName(), imgURL);
-
                             } else {
                                 createRowItems(null, convo.getSenderName(), lastMsg);
-                                mConvoDB.insertConvo(mUserId, senderId, recipientId, lastMsg, convo.getSenderName(), null);
 
                             }
 
@@ -353,8 +364,10 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
 
         NetworkInfo info = mgr.getActiveNetworkInfo();
         if(info != null && info.isConnected()) {
+            hasConnection = true;
             webserviceHelper(username);
         } else {
+            hasConnection = false;
             Toast.makeText(this,
                     "No network connection available.",
                     Toast.LENGTH_SHORT) .show();
@@ -374,12 +387,15 @@ public class HomepageActivity extends AppCompatActivity implements NavigationVie
                     String senderImg = c.getSenderProfileImgPath();
                     String recipientImg = c.getRecipientProfileImgPath();
 
+                    System.out.println("recipient " + c.getRecipientName());
+                    System.out.println("sender " + c.getSenderName());
+
 
                     if(senderId != null ) {
-                        createRowItems(senderImg,c.getRecipientName(), lastMsg);
+                        createRowItems(senderImg,c.getSenderName(), lastMsg);
 
                     } else {
-                        createRowItems(recipientImg, c.getSenderName(), lastMsg);
+                        createRowItems(recipientImg, c.getRecipientName(), lastMsg);
                     }
                 }
             }

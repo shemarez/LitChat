@@ -203,7 +203,7 @@ public class FriendsActivity extends AppCompatActivity implements AdapterView.On
                 Conversation newConvo = new Conversation();
                 newConvo.setRecipientId(entry.getValue().getUserId());
                 newConvo.setSenderId(mUserId);
-                newConvo.setUsername(entry.getValue().getUsername());
+                newConvo.setRecipientName(entry.getValue().getUsername());
                 intent.putExtra("Conversation", newConvo);
                 intent.putExtra("actionBarTitle", entry.getValue().getUsername());
 

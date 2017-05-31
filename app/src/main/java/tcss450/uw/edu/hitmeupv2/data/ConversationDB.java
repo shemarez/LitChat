@@ -50,16 +50,16 @@ public class ConversationDB {
      * @param profileImgPath the friends profile pic
      * @return a boolean
      */
-    public boolean insertConvo(String myId, String senderId, String recipientId, String message, String username, String profileImgPath) {
+    public boolean insertConvo(String myId, String senderId, String recipientId, String message, String username) {
         ContentValues cv = new ContentValues();
         cv.put("id", myId);
         cv.put("senderId", senderId);
         cv.put("recipientId", recipientId);
         cv.put("message", message);
         cv.put("username", username);
-        cv.put("profileImgPath", profileImgPath);
+        System.out.println("the username being stored " + username);
 
-        long rowId = mSQLiteDatabase.insertWithOnConflict("Conversation", null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+        long rowId = mSQLiteDatabase.insert("Conversation", null, cv);
 
         return rowId !=-1;
     }
@@ -80,7 +80,7 @@ public class ConversationDB {
     public List<Conversation> getConvos() {
 
         String [] columns = {
-                "id", "senderId", "recipientId", "message", "username", "profileImgPath"
+                "id", "senderId", "recipientId", "message", "username"
         };
 
         Cursor c = mSQLiteDatabase.query(
@@ -101,19 +101,20 @@ public class ConversationDB {
             String recipientId = c.getString(2);
             String message = c.getString(3);
             String username = c.getString(4);
-            String profileImgPath = c.getString(5);
             Conversation convo = new Conversation();
 
+            System.out.println("getCount " + c.getCount());
+//
             if(myId.equals(senderId)) {
-                convo.setRecipientId(recipientId);
-                convo.setUsername(username);
-                convo.setMessage(message);
-                convo.setRecipientProfileImgPath(profileImgPath);
-            } else {
-                convo.setUsername(username);
                 convo.setSenderId(senderId);
+                convo.setSenderName(username);
                 convo.setMessage(message);
-                convo.setSenderProfileImgPath(profileImgPath);
+////                convo.setRecipientProfileImgPath(profileImgPath);
+            } else {
+                convo.setRecipientId(recipientId);
+                convo.setRecipientName(username);
+                convo.setMessage(message);
+//                convo.setSenderProfileImgPath(profileImgPath);
             }
 
 
@@ -131,6 +132,7 @@ public class ConversationDB {
      * Delete all the data from the CONVERSATION_TABLE
      */
     public void deleteCourses() {
+        System.out.println("Delete");
         mSQLiteDatabase.delete(CONVO_TABLE, null, null);
     }
 

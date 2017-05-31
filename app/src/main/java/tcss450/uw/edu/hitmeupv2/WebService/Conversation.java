@@ -125,8 +125,15 @@ public class Conversation implements Serializable {
      * Sets the username of the recipient
      * @param username string
      */
-    public void setUsername(String username) {
+    public void setRecipientName(String username) {
         recipientName = username;
+    }
+    /**
+     * Sets the username of the sender
+     * @param username string
+     */
+    public void setSenderName(String username) {
+        senderName = username;
     }
 
     /**
