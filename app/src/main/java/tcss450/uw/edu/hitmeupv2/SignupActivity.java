@@ -13,7 +13,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -196,11 +198,18 @@ public class SignupActivity extends AppCompatActivity {
             //used to convert JSON to POJO (Plain old java object)
             Gson gson = new GsonBuilder().setLenient().create();
 
+            // Use this to set the timeout value since heroku takes a while
+            // to start the server
+            final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .connectTimeout(60, TimeUnit.SECONDS)
+                    .build();
 
             //Set up retrofit to make our API call
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create(gson))
+                    .client(okHttpClient)
                     .build();
 
             //More setup
@@ -209,7 +218,7 @@ public class SignupActivity extends AppCompatActivity {
             //Call the login interface that we created
             Call<List<User>> call = api.register(username, password, name, phone);
 
-//        //Make API call, handle success and error
+            //Make API call, handle success and error
             call.enqueue(new Callback<List<User>>() {
 
                 @Override
