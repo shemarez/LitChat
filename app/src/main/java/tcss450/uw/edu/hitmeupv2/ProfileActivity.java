@@ -61,6 +61,8 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
     private PostPhoto mPhoto;
     /** For loading purposes */
     private ProgressBar mSpinner;
+    /** Check if user logged out */
+    private boolean hasLoggedOut = false;
 
 
     /**
@@ -130,10 +132,10 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
             SharedPreferences.Editor edit = sharedPreferences.edit();
             edit.clear();
             edit.commit();
-
+            finish();
+            hasLoggedOut = true;
             Intent i = new Intent(this, LoginActivity.class);
             startActivity(i);
-            finish();
 
         }
         if(position == 3) {
@@ -189,10 +191,13 @@ public class ProfileActivity extends AppCompatActivity implements AdapterView.On
 
     @Override
     public void onBackPressed() {
+        if(!hasLoggedOut) {
+            System.out.println("LOGGED OUT");
+            Intent homepage = new Intent(this, HomepageActivity.class);
+            homepage.putExtra("userId", mUserId);
+            startActivity(homepage);
+        }
 
-        Intent homepage = new Intent(this, HomepageActivity.class);
-        homepage.putExtra("userId", mUserId);
-        startActivity(homepage);
 
     }
 
