@@ -60,7 +60,7 @@
             android:autoText="true"
             android:background="@color/messageScreenBackground"
             android:hint="@string/msg_box"
-            android:inputType="textMultiLine"
+            android:inputType="textMultiLine|textShortMessage"
             android:maxLines="10"
             android:scrollbars="vertical"
             android:textColor="@color/textMessageColor"
